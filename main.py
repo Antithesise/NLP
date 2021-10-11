@@ -5,8 +5,8 @@ from CLI import CLI
 cmdln = CLI()
 
 @cmdln.add_cmd
-def echo(*text: str, sep: str=" ", end: str="\n") -> None:
-    print(*text, sep=sep, end=end)
+def echo(*text: str, sep: str=" ", end: str="\n", flush: bool=False) -> None:
+    print(*text, sep=sep, end=end, flush=flush)
 
 @cmdln.add_cmd
 def quit(status: object=0) -> NoReturn:
@@ -29,5 +29,8 @@ def add(num1: str, num2: str) -> None:
 @cmdln.add_cmd
 def sub(num1: str, num2: str) -> None:
     print(int(num1) - int(num2))
+
+def cat(*text) -> None:
+    print(*text)
 
 cmdln()
