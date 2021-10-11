@@ -192,9 +192,8 @@ class CLI:
                         cmdargs = [a.strip() for a in line if a.strip()][2:]
 
                         for a in cmdargs:
-                            if a[0] == a[-1] and len(a) > 1:
-                                if a[0] in "'\"":
-                                    a = a[1:-1]
+                            if a[0] == a[-1] and len(a) > 1 and a[0] in "'\"":
+                                a = a[1:-1]
 
                     i = 0
                     while i < len(cmdargs):
