@@ -22,6 +22,13 @@ class CLI:
         return func
 
     def __call__(self) -> None:
+        """
+        Register commands with `add_cmd`.
+
+        Execute commands by starting the line with '$',\nthen the name of the command and any arguments,\nseperated by spaces (keyword argument supplied\nlike so: `-name GoodCoderBBoy`).\n
+        Use `tab` to complete autofill and the `up` and\n`down` arrow keys to navigate options. Execute\na paragraph by pressing `esc`\n
+        """
+
         # flush stdin
         while kbhit():
             getch()
@@ -167,7 +174,7 @@ class CLI:
 
                         if wd:
                             ln.append(wd)
-                        
+
                         if ch in ["\r", "\x1b"]:
                             break
                         elif ch == "\t" and wd[-1] != " ":
@@ -232,7 +239,7 @@ class CLI:
                                 aa[0][-1] += a
                             else:
                                 aa[0].append(a.strip())
-                        
+
                         cmdargs = [a for a in aa[0] if a.strip()]
 
                     i = 0
@@ -254,9 +261,9 @@ class CLI:
                         f(*cmdargs, **cmdkwargs)
                     except Exception as e:
                         print(e) # debugging
-                
+
                 print()
-        
+
         except KeyboardInterrupt:
             for i in range(6):
                 print("\r\x1b[2K")
