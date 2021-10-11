@@ -42,7 +42,8 @@ class CLI:
 
                     option: int = 0 # index for autocomplete options
 
-                    argc = {c:list(a) for c, a in self.cmds.items()} # arguments to display
+                    # arguments to display
+                    argc = {c:list(a) for c, a in self.cmds.items()}
 
                     while True: # words
                         wd: str = "" # word
@@ -60,11 +61,14 @@ class CLI:
                         elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                             w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5)) # command args
 
-                        possibilities = AC.Candidates(wd, maxitems=5, options=w) # set top 5 autocomplete options
+                        # set top 5 autocomplete options
+                        possibilities = AC.Candidates(wd, maxitems=5, options=w)
 
-                        if ln != ["$"] and len(possibilities) != 0: # make sure option is within range
+                        if ln != ["$"] and len(possibilities) != 0:
+                            # make sure option is within range
                             option = min(option, len(possibilities) - 1)
 
+                        # print possibilities
                         if possibilities:
                             for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
                                 print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
@@ -74,13 +78,16 @@ class CLI:
                         print(end="\x1b[A\r" * 7)
 
                         while True: # chars
-                            if l := [sn for sn, q in enumerate(ln + [wd]) if bool(q.strip()) and q.strip() != "$"]: # print line so far if it is a cmd
+                            if l := [sn for sn, q in enumerate(ln + [wd]) if bool(q.strip()) and q.strip() != "$"]:
+                                # print line so far if it is a cmd
                                 print(end="\x1b[2K\r" + "".join(["\x1b[33m" * (n == l[0] and n != 0) + w + "\x1b[0m" * (n == l[0]) for n, w in enumerate(ln + [wd])]))
-                            else: # print line so far if it is not a cmd
+                            else:
+                                # print line so far if it is not a cmd
                                 print(end="\x1b[2K\r" + "".join(ln + [wd]))
 
                             while not kbhit():
-                                print(end=("_" if round(time() * 2) % 2 else " ") + "\x1b[D") # blinking underscore
+                                # blinking underscore
+                                print(end=("_" if round(time() * 2) % 2 else " ") + "\x1b[D")
                             
                             print(" \x1b[D") # clear blinking underscore
 
@@ -105,7 +112,8 @@ class CLI:
                                     if ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"]:
                                         if [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                                             if possibilities[option] in argc[[w.strip() for w in ln if w.strip() if w.strip() != "$"][0]] and ln[-1].strip() != "-":
-                                                ln.append("-") # if option is argument for the cmd add the '-'
+                                                # if option is argument for the cmd then add the '-'
+                                                ln.append("-")
 
                                 wd = possibilities[option] + " " * possibilities[option].isalnum() # set word to the option
                                 break
@@ -134,22 +142,29 @@ class CLI:
                             w = Counter(WORDS) # base autocomplete options
 
                             if ln == []:
-                                w |= Counter({"$": (MAX + 5)}) # empty line
+                                # empty line
+                                w |= Counter({"$": (MAX + 5)})
                             elif ln == ["$"]:
-                                w = Counter() # no options when '$' is wating to be followed by a space
+                                # no options when '$' is wating to be followed by a space
+                                w = Counter()
                             elif "".join(ln).lstrip() == "$ " and len([w.strip() for w in ln if w.strip()]) < 2:
-                                w |= Counter(list(self.cmds.keys()) * (MAX + 5)) # '$', but no command
+                                # '$', but no command
+                                w |= Counter(list(self.cmds.keys()) * (MAX + 5))
                             elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
-                                w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5)) # command args
+                                # command args
+                                w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5))
 
-                            if ln != ["$"] and len(possibilities) != 0:  # make sure option is within range
+                            if ln != ["$"] and len(possibilities) != 0:
+                                # make sure option is within range
                                 option = min(option, len(possibilities) - 1)
 
-                            possibilities = AC.Candidates(wd, maxitems=5, options=w) # set top 5 autocomplete options
+                            # set top 5 autocomplete options
+                            possibilities = AC.Candidates(wd, maxitems=5, options=w)
 
                             if (not ch.isalnum()) and ch not in  ["\b", "\x00", "\xe0"]:
                                 break
 
+                            # print possibilities
                             if possibilities:
                                 for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
                                     print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
@@ -168,7 +183,8 @@ class CLI:
 
                         if ch in ["\r", "\x1b"]: # enter or return
                             break
-                        elif ch == "\t" and wd[-1] != " ": # autocmplete add trailing space
+                        elif ch == "\t" and wd[-1] != " ":
+                            # autocomplete add trailing space
                             ln.append(" ")
 
                     lns.append(ln) # add line to lines
@@ -187,7 +203,8 @@ class CLI:
                     elif not [w.strip() for w in line[1:] if w.strip()]: # if line is just whitespace
                         continue
 
-                    cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0] # get name of cmd
+                    # get name of cmd
+                    cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0]
 
                     cmdargs: list[str] = []
                     cmdkwargs: dict[str, str] = {}
