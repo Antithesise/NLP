@@ -100,7 +100,7 @@ class CLI:
 
                             if ch == "\t":
                                 if len(ln) > 0:
-                                    if ln[0].strip() == "$" and ln[-1].strip() != "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"]:
+                                    if ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"]:
                                         if [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                                             if possibilities[option] in argc[[w.strip() for w in ln if w.strip() if w.strip() != "$"][0]] and ln[-1].strip() != "-":
                                                 ln.append("-")
@@ -126,8 +126,6 @@ class CLI:
                                     ln = ln[:-1]
                                     lns = lns[:-1]
                                     print(end=" \r\x1b[1A")
-                                elif wd == "":
-                                    pass
                                 else: # try to delete when there is nothing to delete
                                     print(end="\a")
 
