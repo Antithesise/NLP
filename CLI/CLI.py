@@ -207,9 +207,9 @@ class CLI:
                         else:
                             f = self.__blank
 
-                        f[0](*cmdargs, **cmdkwargs)
+                        f(*cmdargs, **cmdkwargs)
                     except Exception as e:
-                        print(e)
+                        print(e) # debugging
                 
                 print()
         
