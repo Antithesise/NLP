@@ -1,0 +1,241 @@
+from AutoCorrect import AutoCorrect, WORDS, MAX
+from typing import Callable, Tuple
+from inspect import getfullargspec
+from collections import Counter
+from msvcrt import kbhit, getch
+from time import time
+
+AC = AutoCorrect()
+
+class CLI:
+    def __blank(self, *args, **kwargs) -> None:
+        pass
+
+    def __init__(self) -> None:
+        self.cmds: dict[str, Tuple[Callable, list[str]]] = {}
+        self.args: dict[str, list[str]] = {}
+
+
+    def add_cmd(self, func: Callable) -> Callable:
+        args = getfullargspec(func).kwonlyargs + getfullargspec(func).args
+        
+        self.cmds[func.__name__] = (func, args)
+        self.args[func.__name__] = args
+
+        return func
+
+    def __call__(self) -> None:
+        # flush stdin
+        while kbhit():
+            getch()
+
+        try:
+            while True:
+                lns: list[list[str]] = []
+
+                while True: # lines
+                    ln: list[str] = []
+
+                    option: int = 0
+
+                    argc = {c:list(a) for c, a in self.args.items()}
+
+                    while True: # words
+                        wd: str = ""
+
+                        w = Counter(WORDS)
+
+                        print(end="\x1b[?25l")
+
+                        if ln == []:
+                            w |= Counter({"$": (MAX + 5)})
+                        elif ln == ["$"]:
+                            w = Counter()
+                        elif "".join(ln).lstrip() == "$ " and len([w.strip() for w in ln if w.strip()]) < 2:
+                            w |= Counter(list(self.cmds.keys()) * (MAX + 5))
+                        elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
+                            w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1].strip()) * (MAX + 5))
+
+                        possibilities = AC.Candidates(wd, maxitems=5, options=w)
+
+                        if ln != ["$"]:
+                            option = min(option, len(possibilities) - 1)
+
+                        if possibilities:
+                            for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
+                                print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
+                        else:
+                            for i in range(6):
+                                print("\r\x1b[2K")
+
+                        for i in range(7):
+                            print(end="\x1b[A\r")
+
+                        while True: # chars
+                            if l := [sn for sn, q in enumerate(ln + [wd]) if bool(q.strip()) and q.strip() != "$"]:
+                                print(end="\x1b[2K\r" + "".join(["\x1b[33m" * (n == l[0] and n != 0) + w + "\x1b[0m" * (n == l[0]) for n, w in enumerate(ln + [wd])]))
+                            else:
+                                print(end="\x1b[2K\r" + "".join(ln + [wd]))
+
+
+                            while not kbhit():
+                                print(end=("_" if round(time() * 2) % 2 else " ") + "\x1b[D")
+
+                            ch: str = getch().decode("utf-8")
+
+                            if ch in ["\x00", "\xe0"]:
+                                if kbhit():
+                                    code = getch().decode("utf-8")
+
+                                    if code == "H":
+                                        option -= 1
+                                        option %= len(possibilities)
+                                    elif code == "P":
+                                        option += 1
+                                        option %= len(possibilities)
+                                    elif code == "S":
+                                        wd = ""
+                                        ln = []
+
+                            print(" \x1b[D")
+
+                            if ch == "\t":
+                                if len(ln) > 0:
+                                    if ln[0].strip() == "$" and ln[-1].strip() != "$":
+                                        if [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
+                                            if possibilities[option] in argc[[w.strip() for w in ln if w.strip() if w.strip() != "$"][0]] and ln[-1].strip() != "-":
+                                                ln.append("-")
+
+                                wd = possibilities[option] + " "
+                                break
+                            elif ch in ["\r", "\x1b"]:
+                                print(end="\n" * (ch == "\r" or "".join(ln).strip() != ""))
+                                break
+
+                            if ch not in ["\b", "\x00", "\xe0"]:
+                                wd += ch
+
+                            if ch == "\b":
+                                if len(wd) > 0: # delete last char of word
+                                    wd = wd[:-1]
+                                elif len(ln) > 0: # delete last char of previous word
+                                    wd = ln[-1][:-1]
+                                    ln = ln[:-1]
+                                elif len(lns) > 0: # delete last char of previous line
+                                    ln = lns[-1]
+                                    wd = ln[-1]
+                                    ln = ln[:-1]
+                                    lns = lns[:-1]
+                                    print(end=" \r\x1b[1A")
+                                else: # try to delete when there is nothing to delete
+                                    wd = ""
+                                    print(end="\a")
+
+                            w = Counter(WORDS)
+
+                            if ln == []:
+                                w |= Counter({"$": (MAX + 5)})
+                            elif ln == ["$"]:
+                                w = Counter()
+                            elif "".join(ln).lstrip() == "$ " and len([w.strip() for w in ln if w.strip()]) < 2:
+                                w |= Counter(list(self.cmds.keys()) * (MAX + 5))
+                            elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
+                                w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5))
+
+                            if ln != ["$"]:
+                                option = min(option, len(possibilities) - 1)
+
+                            possibilities = AC.Candidates(wd, maxitems=5, options=w)
+
+                            if (not ch.isalnum()) and ch not in  ["\b", "\x00", "\xe0"]:
+                                break
+
+                            if possibilities:
+                                for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
+                                    print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
+                            else:
+                                for i in range(6):
+                                    print("\r\x1b[2K")
+
+                            for i in range(7):
+                                print(end="\x1b[A\r")
+
+                        if len(ln) > 0:
+                            if ln[0].strip() == "$" and ln[-1] == "-":
+                                if [w.strip() for w in ln if w.strip()][1] in argc:
+                                    argc[[w.strip() for w in ln if w.strip()][1]].remove(wd.strip())
+
+                        ln.append(wd)
+                        
+                        if ch in ["\r", "\x1b"]:
+                            break
+
+                    lns.append(ln)
+
+                    if ch == "\x1b":
+                        print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 7 + "\x1b[2K\r")
+                        break
+
+                for line in lns:
+                    if not "".join(line).strip():
+                        continue
+                    elif line[0].strip() != "$":
+                        continue
+                    elif len(line) <= 1:
+                        continue
+                    elif not [w.strip() for w in line[1:] if w.strip()]:
+                        continue
+
+                    cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0]
+
+                    args: list[str] = []
+                    kwargs: dict[str, str] = {}
+
+                    if len([w for w in line if w.strip()][1:]):
+                        args = [a.strip() for a in line if a.strip()][2:]
+
+                    i = 0
+                    while i < len(args):
+                        if args[i] == "-":
+                            kwargs[args[i + 1]] = args[i + 2]
+
+                            for _ in range(3):
+                                args.pop(i)
+                        else:
+                            i += 1
+
+                    try:
+                        f = self.cmds.get(cmd, (self.__blank, ))
+
+                        f[0](*args, **kwargs)
+                    except Exception as e:
+                        print(e)
+                
+                print()
+        
+        except KeyboardInterrupt:
+            for i in range(6):
+                print("\r\x1b[2K")
+
+            for i in range(5):
+                print(end="\x1b[A\r")
+
+            return print(end="\x1b[?25h")
+        except EOFError:
+            for i in range(6):
+                print("\r\x1b[2K")
+
+            for i in range(5):
+                print(end="\x1b[A\r")
+
+            return print(end="\x1b[?25h")
+        except Exception as e:
+            for i in range(6):
+                print("\r\x1b[2K")
+
+            for i in range(5):
+                print(end="\x1b[A\r")
+
+            print(end="\x1b[?25h")
+
+            raise e
