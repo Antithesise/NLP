@@ -188,8 +188,13 @@ class CLI:
                     cmdargs: list[str] = []
                     cmdkwargs: dict[str, str] = {}
 
-                    if len([w for w in line if w.strip()][1:]):
+                    if len([w for w in line if w.strip()]) > 2:
                         cmdargs = [a.strip() for a in line if a.strip()][2:]
+
+                        for a in cmdargs:
+                            if a[0] == a[-1] and len(a) > 1:
+                                if a[0] in "'\"":
+                                    a = a[1:-1]
 
                     i = 0
                     while i < len(cmdargs):
