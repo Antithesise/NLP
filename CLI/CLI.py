@@ -26,7 +26,7 @@ class CLI:
         Register commands with `add_cmd`.
 
         Execute commands by starting the line with '$',\nthen the name of the command and any arguments,\nseperated by spaces (keyword argument supplied\nlike so: `-name GoodCoderBBoy`).\n
-        Use `tab` to complete autofill and the `up` and\n`down` arrow keys to navigate options. Execute\na paragraph by pressing `esc`\n
+        Use `tab` to complete autofill and the `up` and\n`down` arrow keys to navigate options. Execute\na paragraph by pressing `esc`\nPress `delete` to cancel the entire line
         """
 
         # flush stdin
@@ -35,84 +35,79 @@ class CLI:
 
         try:
             while True:
-                lns: list[list[str]] = []
+                lns: list[list[str]] = [] # lines
 
                 while True: # lines
-                    ln: list[str] = []
+                    ln: list[str] = [] # line
 
-                    option: int = 0
+                    option: int = 0 # index for autocomplete options
 
-                    argc = {c:list(a) for c, a in self.cmds.items()}
+                    argc = {c:list(a) for c, a in self.cmds.items()} # arguments to display
 
                     while True: # words
-                        wd: str = ""
+                        wd: str = "" # word
 
-                        w = Counter(WORDS)
+                        w = Counter(WORDS) # base autocomplete options
 
-                        print(end="\x1b[?25l")
+                        print(end="\x1b[?25l") # hide cursor
 
                         if ln == []:
-                            w |= Counter({"$": (MAX + 5)})
+                            w |= Counter({"$": (MAX + 5)}) # empty line
                         elif ln == ["$"]:
-                            w = Counter()
+                            w = Counter() # no options when '$' is wating to be followed by a space
                         elif "".join(ln).lstrip() == "$ " and len([w.strip() for w in ln if w.strip()]) < 2:
-                            w |= Counter(list(self.cmds.keys()) * (MAX + 5))
+                            w |= Counter(list(self.cmds.keys()) * (MAX + 5)) # '$', but no command
                         elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
-                            w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5))
+                            w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5)) # command args
 
-                        possibilities = AC.Candidates(wd, maxitems=5, options=w)
+                        possibilities = AC.Candidates(wd, maxitems=5, options=w) # set top 5 autocomplete options
 
-                        if ln != ["$"] and len(possibilities) != 0:
+                        if ln != ["$"] and len(possibilities) != 0: # make sure option is within range
                             option = min(option, len(possibilities) - 1)
 
                         if possibilities:
                             for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
                                 print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
                         else:
-                            print("\r\x1b[2K ...")
+                            print(end="\r\x1b[2K ...\n" + "\r\x1b[2K\n" * 5)
 
-                            for i in range(5):
-                                print("\r\x1b[2K")
-
-                        for i in range(7):
-                            print(end="\x1b[A\r")
+                        print(end="\x1b[A\r" * 7)
 
                         while True: # chars
-                            if l := [sn for sn, q in enumerate(ln + [wd]) if bool(q.strip()) and q.strip() != "$"]:
+                            if l := [sn for sn, q in enumerate(ln + [wd]) if bool(q.strip()) and q.strip() != "$"]: # print line so far if it is a cmd
                                 print(end="\x1b[2K\r" + "".join(["\x1b[33m" * (n == l[0] and n != 0) + w + "\x1b[0m" * (n == l[0]) for n, w in enumerate(ln + [wd])]))
-                            else:
+                            else: # print line so far if it is not a cmd
                                 print(end="\x1b[2K\r" + "".join(ln + [wd]))
 
-
                             while not kbhit():
-                                print(end=("_" if round(time() * 2) % 2 else " ") + "\x1b[D")
+                                print(end=("_" if round(time() * 2) % 2 else " ") + "\x1b[D") # blinking underscore
+                            
+                            print(" \x1b[D") # clear blinking underscore
 
-                            ch: str = getch().decode("utf-8")
+                            ch: str = getch().decode("utf-8") # set ch to input
 
-                            if ch in ["\x00", "\xe0"]:
+                            if ch in ["\x00", "\xe0"]: # special keys
                                 if kbhit():
                                     code = getch().decode("utf-8")
 
-                                    if code == "H":
+                                    if code == "H": # up arrow
                                         option -= 1
                                         option %= len(possibilities)
-                                    elif code == "P":
+                                    elif code == "P": # down arrow
                                         option += 1
                                         option %= len(possibilities)
-                                    elif code == "S":
+                                    elif code == "S": # 'del' (not backspace)
                                         wd = ""
                                         ln = []
 
-                            print(" \x1b[D")
-
-                            if ch == "\t":
+                            if ch == "\t": # tab
                                 if len(ln) > 0:
                                     if ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"]:
                                         if [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                                             if possibilities[option] in argc[[w.strip() for w in ln if w.strip() if w.strip() != "$"][0]] and ln[-1].strip() != "-":
-                                                ln.append("-")
+                                                ln.append("-") # if option is argument for the cmd add the '-'
 
-                                wd = possibilities[option] + " " * possibilities[option].isalnum()
+                                wd = possibilities[option] + " " * possibilities[option].isalnum() # set word to the option
                                 break
                             elif ch in ["\r", "\x1b"]:
                                 print(end="\n" * (ch == "\r" or "".join(ln).strip() != ""))
@@ -136,21 +131,21 @@ class CLI:
                                 else: # try to delete when there is nothing to delete
                                     print(end="\a")
 
-                            w = Counter(WORDS)
+                            w = Counter(WORDS) # base autocomplete options
 
                             if ln == []:
-                                w |= Counter({"$": (MAX + 5)})
+                                w |= Counter({"$": (MAX + 5)}) # empty line
                             elif ln == ["$"]:
-                                w = Counter()
+                                w = Counter() # no options when '$' is wating to be followed by a space
                             elif "".join(ln).lstrip() == "$ " and len([w.strip() for w in ln if w.strip()]) < 2:
-                                w |= Counter(list(self.cmds.keys()) * (MAX + 5))
+                                w |= Counter(list(self.cmds.keys()) * (MAX + 5)) # '$', but no command
                             elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
-                                w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5))
+                                w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5)) # command args
 
-                            if ln != ["$"] and len(possibilities) != 0:
+                            if ln != ["$"] and len(possibilities) != 0:  # make sure option is within range
                                 option = min(option, len(possibilities) - 1)
 
-                            possibilities = AC.Candidates(wd, maxitems=5, options=w)
+                            possibilities = AC.Candidates(wd, maxitems=5, options=w) # set top 5 autocomplete options
 
                             if (not ch.isalnum()) and ch not in  ["\b", "\x00", "\xe0"]:
                                 break
@@ -159,13 +154,9 @@ class CLI:
                                 for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
                                     print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
                             else:
-                                print("\r\x1b[2K ...")
+                                print(end="\r\x1b[2K ...\n" + "\r\x1b[2K\n" * 5)
 
-                                for i in range(5):
-                                    print("\r\x1b[2K")
-
-                            for i in range(7):
-                                print(end="\x1b[A\r")
+                            print(end="\x1b[A\r" * 7)
 
                         if len(ln) > 0:
                             if ln[0].strip() == "$" and ln[-1] == "-":
@@ -173,46 +164,47 @@ class CLI:
                                     argc[[w.strip() for w in ln if w.strip()][1]].remove(wd.strip())
 
                         if wd:
-                            ln.append(wd)
+                            ln.append(wd) # add word to line
 
-                        if ch in ["\r", "\x1b"]:
+                        if ch in ["\r", "\x1b"]: # enter or return
                             break
-                        elif ch == "\t" and wd[-1] != " ":
+                        elif ch == "\t" and wd[-1] != " ": # autocmplete add trailing space
                             ln.append(" ")
 
-                    lns.append(ln)
+                    lns.append(ln) # add line to lines
 
-                    if ch == "\x1b":
+                    if ch == "\x1b": # escape
                         print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 7 + "\x1b[2K\r")
                         break
 
                 for line in lns:
-                    if not "".join(line).strip():
+                    if not "".join(line).strip(): # if line is blank
                         continue
-                    elif line[0].strip() != "$":
+                    elif line[0].strip() != "$": # if line is just the '$'
                         continue
-                    elif len(line) < 2:
+                    elif len(line) < 2: # if line doesn't have a cmd
                         continue
-                    elif not [w.strip() for w in line[1:] if w.strip()]:
+                    elif not [w.strip() for w in line[1:] if w.strip()]: # if line is just whitespace
                         continue
 
-                    cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0]
+                    cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0] # get name of cmd
 
                     cmdargs: list[str] = []
                     cmdkwargs: dict[str, str] = {}
 
-                    if len([w for w in line if w.strip()]) > 2:
-                        p = True
+                    if len([w for w in line if w.strip()]) > 2: # arguments?
+                        p = True # pass 
 
-                        aa = [[], False]
+                        aa = [[], False] # argument accumalator for string parsing
 
-                        sd = ["'", "\""]
+                        sd = ["'", "\""] # declare strings
 
-                        for i, a in enumerate(line):
+                        for i, a in enumerate(line): # compile arguments
                             if p:
                                 p = a.strip() != cmd
                                 continue
 
+                            # parse strings
                             if len(a.lstrip()) and not aa[1]:
                                 if a.lstrip()[0] in sd:
                                     if len(a.lstrip()) > 1:
@@ -240,10 +232,10 @@ class CLI:
                             else:
                                 aa[0].append(a.strip())
 
-                        cmdargs = [a for a in aa[0] if a.strip()]
+                        cmdargs = [a for a in aa[0] if a.strip()] # clean arguments
 
                     i = 0
-                    while i < len(cmdargs):
+                    while i < len(cmdargs): # compile keyword arguments
                         if cmdargs[i] == "-":
                             cmdkwargs[cmdargs[i + 1]] = cmdargs[i + 2]
 
@@ -254,39 +246,28 @@ class CLI:
 
                     try:
                         if cmd in [sf for sf in dir(self) if callable(self.__getattribute__(sf)) and sf[0] != "_"]:
-                            f = self.__getattribute__(cmd)
+                            f = self.__getattribute__(cmd) # try to find command.
                         else:
-                            f = self.__blank
+                            f = self.__blank # if invalid, set it to the default
 
-                        f(*cmdargs, **cmdkwargs)
+                        f(*cmdargs, **cmdkwargs) # call func
                     except Exception as e:
                         print(e) # debugging
 
                 print()
 
         except KeyboardInterrupt:
-            for i in range(6):
-                print("\r\x1b[2K")
+            # clear 6 lines below then move cursor up 5 lines then show cursor
+            print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 5 + "\x1b[?25h")
 
-            for i in range(5):
-                print(end="\x1b[A\r")
-
-            return print(end="\x1b[?25h")
+            return
         except EOFError:
-            for i in range(6):
-                print("\r\x1b[2K")
+            # clear 6 lines below then move cursor up 5 lines then show cursor
+            print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 5 + "\x1b[?25h")
 
-            for i in range(5):
-                print(end="\x1b[A\r")
-
-            return print(end="\x1b[?25h")
+            return
         except Exception as e:
-            for i in range(6):
-                print("\r\x1b[2K")
-
-            for i in range(5):
-                print(end="\x1b[A\r")
-
-            print(end="\x1b[?25h")
+            # clear 6 lines below then move cursor up 5 lines then show cursor
+            print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 5 + "\x1b[?25h")
 
             raise e
