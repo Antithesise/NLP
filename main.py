@@ -5,8 +5,8 @@ from CLI import CLI
 cmdln = CLI()
 
 @cmdln.add_cmd
-def echo(*text: str, end: str="\n") -> None:
-    print(*text, end=end)
+def echo(*text: str, sep: str=" ", end: str="\n") -> None:
+    print(*text, sep=sep, end=end)
 
 @cmdln.add_cmd
 def quit(status: object=0) -> NoReturn:

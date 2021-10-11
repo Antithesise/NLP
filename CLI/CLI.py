@@ -55,14 +55,16 @@ class CLI:
 
                         possibilities = AC.Candidates(wd, maxitems=5, options=w)
 
-                        if ln != ["$"]:
+                        if ln != ["$"] and len(possibilities) != 0:
                             option = min(option, len(possibilities) - 1)
 
                         if possibilities:
                             for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
                                 print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
                         else:
-                            for i in range(6):
+                            print("\r\x1b[2K ...")
+
+                            for i in range(5):
                                 print("\r\x1b[2K")
 
                         for i in range(7):
@@ -98,12 +100,12 @@ class CLI:
 
                             if ch == "\t":
                                 if len(ln) > 0:
-                                    if ln[0].strip() == "$" and ln[-1].strip() != "$":
+                                    if ln[0].strip() == "$" and ln[-1].strip() != "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"]:
                                         if [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                                             if possibilities[option] in argc[[w.strip() for w in ln if w.strip() if w.strip() != "$"][0]] and ln[-1].strip() != "-":
                                                 ln.append("-")
 
-                                wd = possibilities[option] + " "
+                                wd = possibilities[option] + " " * possibilities[option].isalnum()
                                 break
                             elif ch in ["\r", "\x1b"]:
                                 print(end="\n" * (ch == "\r" or "".join(ln).strip() != ""))
@@ -124,8 +126,9 @@ class CLI:
                                     ln = ln[:-1]
                                     lns = lns[:-1]
                                     print(end=" \r\x1b[1A")
+                                elif wd == "":
+                                    pass
                                 else: # try to delete when there is nothing to delete
-                                    wd = ""
                                     print(end="\a")
 
                             w = Counter(WORDS)
@@ -139,7 +142,7 @@ class CLI:
                             elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                                 w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5))
 
-                            if ln != ["$"]:
+                            if ln != ["$"] and len(possibilities) != 0:
                                 option = min(option, len(possibilities) - 1)
 
                             possibilities = AC.Candidates(wd, maxitems=5, options=w)
@@ -151,7 +154,9 @@ class CLI:
                                 for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
                                     print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
                             else:
-                                for i in range(6):
+                                print("\r\x1b[2K ...")
+
+                                for i in range(5):
                                     print("\r\x1b[2K")
 
                             for i in range(7):
@@ -162,10 +167,13 @@ class CLI:
                                 if [w.strip() for w in ln if w.strip()][1] in argc:
                                     argc[[w.strip() for w in ln if w.strip()][1]].remove(wd.strip())
 
-                        ln.append(wd)
+                        if wd:
+                            ln.append(wd)
                         
                         if ch in ["\r", "\x1b"]:
                             break
+                        elif ch == "\t" and wd[-1] != " ":
+                            ln.append(" ")
 
                     lns.append(ln)
 
@@ -178,7 +186,7 @@ class CLI:
                         continue
                     elif line[0].strip() != "$":
                         continue
-                    elif len(line) <= 1:
+                    elif len(line) < 2:
                         continue
                     elif not [w.strip() for w in line[1:] if w.strip()]:
                         continue
@@ -189,11 +197,45 @@ class CLI:
                     cmdkwargs: dict[str, str] = {}
 
                     if len([w for w in line if w.strip()]) > 2:
-                        cmdargs = [a.strip() for a in line if a.strip()][2:]
+                        p = True
 
-                        for a in cmdargs:
-                            if a[0] == a[-1] and len(a) > 1 and a[0] in "'\"":
-                                a = a[1:-1]
+                        aa = [[], False]
+
+                        sd = ["'", "\""]
+
+                        for i, a in enumerate(line):
+                            if p:
+                                p = a.strip() != cmd
+                                continue
+
+                            if len(a.lstrip()) and not aa[1]:
+                                if a.lstrip()[0] in sd:
+                                    if len(a.lstrip()) > 1:
+                                        aa[0].append(a.lstrip()[1:])
+                                    else:
+                                        aa[0].append("")
+
+                                    aa[1] = True
+
+                                    sd = [a.lstrip()[0]]
+
+                                    continue
+                            if len(a.rstrip()) and aa[1]:
+                                if a.rstrip()[-1] in sd:
+                                    if len(a.rstrip()) > 1:
+                                        aa[0][-1] += a.lstrip()[:-1]
+
+                                    aa[1] = False
+
+                                    sd = ["'", "\""]
+
+                                    continue
+                            if aa[1]:
+                                aa[0][-1] += a
+                            else:
+                                aa[0].append(a.strip())
+                        
+                        cmdargs = [a for a in aa[0] if a.strip()]
 
                     i = 0
                     while i < len(cmdargs):
