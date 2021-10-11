@@ -1,5 +1,5 @@
 from AutoCorrect import AutoCorrect, WORDS, MAX
-from typing import Callable, Tuple
+from typing import Callable
 from inspect import getfullargspec
 from collections import Counter
 from msvcrt import kbhit, getch
@@ -12,15 +12,12 @@ class CLI:
         pass
 
     def __init__(self) -> None:
-        self.cmds: dict[str, Tuple[Callable, list[str]]] = {}
-        self.args: dict[str, list[str]] = {}
+        self.cmds: dict[str, list[str]] = {}
 
 
     def add_cmd(self, func: Callable) -> Callable:
-        args = getfullargspec(func).kwonlyargs + getfullargspec(func).args
-        
-        self.cmds[func.__name__] = (func, args)
-        self.args[func.__name__] = args
+        self.__setattr__(func.__name__, func)
+        self.cmds[func.__name__] = getfullargspec(func).kwonlyargs + getfullargspec(func).args
 
         return func
 
@@ -38,7 +35,7 @@ class CLI:
 
                     option: int = 0
 
-                    argc = {c:list(a) for c, a in self.args.items()}
+                    argc = {c:list(a) for c, a in self.cmds.items()}
 
                     while True: # words
                         wd: str = ""
@@ -54,7 +51,7 @@ class CLI:
                         elif "".join(ln).lstrip() == "$ " and len([w.strip() for w in ln if w.strip()]) < 2:
                             w |= Counter(list(self.cmds.keys()) * (MAX + 5))
                         elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
-                            w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1].strip()) * (MAX + 5))
+                            w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5))
 
                         possibilities = AC.Candidates(wd, maxitems=5, options=w)
 
@@ -188,26 +185,29 @@ class CLI:
 
                     cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0]
 
-                    args: list[str] = []
-                    kwargs: dict[str, str] = {}
+                    cmdargs: list[str] = []
+                    cmdkwargs: dict[str, str] = {}
 
                     if len([w for w in line if w.strip()][1:]):
-                        args = [a.strip() for a in line if a.strip()][2:]
+                        cmdargs = [a.strip() for a in line if a.strip()][2:]
 
                     i = 0
-                    while i < len(args):
+                    while i < len(cmdargs):
                         if args[i] == "-":
-                            kwargs[args[i + 1]] = args[i + 2]
+                            cmdkwargs[cmdargs[i + 1]] = cmdargs[i + 2]
 
                             for _ in range(3):
-                                args.pop(i)
+                                cmdargs.pop(i)
                         else:
                             i += 1
 
                     try:
-                        f = self.cmds.get(cmd, (self.__blank, ))
+                        if cmd in [sf for sf in dir(self) if callable(self.__getattribute__(sf)) and sf[0] != "_"]:
+                            f = self.__getattribute__(cmd)
+                        else:
+                            f = self.__blank
 
-                        f[0](*args, **kwargs)
+                        f[0](*cmdargs, **cmdkwargs)
                     except Exception as e:
                         print(e)
                 
