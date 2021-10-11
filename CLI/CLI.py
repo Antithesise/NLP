@@ -193,7 +193,7 @@ class CLI:
 
                     i = 0
                     while i < len(cmdargs):
-                        if args[i] == "-":
+                        if cmdargs[i] == "-":
                             cmdkwargs[cmdargs[i + 1]] = cmdargs[i + 2]
 
                             for _ in range(3):
