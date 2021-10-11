@@ -1,8 +1,8 @@
 from AutoCorrect import AutoCorrect, WORDS, MAX
-from typing import Callable
 from inspect import getfullargspec
 from collections import Counter
 from msvcrt import kbhit, getch
+from typing import Callable
 from time import time
 
 AC = AutoCorrect()
