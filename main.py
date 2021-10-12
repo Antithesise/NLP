@@ -2,6 +2,7 @@ from typing import NoReturn
 from sys import exit
 from CLI import CLI
 
+
 cmdln = CLI()
 
 @cmdln.add_cmd
@@ -32,5 +33,6 @@ def sub(num1: str, num2: str) -> None:
 
 def cat(*text) -> None:
     print(*text)
+
 
 cmdln()

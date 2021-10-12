@@ -5,6 +5,7 @@ from msvcrt import kbhit, getch
 from typing import Callable
 from time import time
 
+
 AC = AutoCorrect()
 
 class CLI:
@@ -13,7 +14,6 @@ class CLI:
 
     def __init__(self) -> None:
         self.cmds: dict[str, list[str]] = {}
-
 
     def add_cmd(self, func: Callable) -> Callable:
         self.__setattr__(func.__name__, func)
