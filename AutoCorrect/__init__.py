@@ -7,10 +7,11 @@ MIT license: www.opensource.org/licenses/mit-license.php
 Modified by GoodCoderBBoy 2021
 """
 
-from AutoCorrect.AutoCorrect import AutoCorrect, WORDS, MAX
+from AutoCorrect.AutoCorrect import AutoCorrect, WagnerFischer, WORDS, MAX
 
 __all__ = [
     "AutoCorrect",
+    "WagnerFischer",
     "WORDS",
     "MAX"
 ]

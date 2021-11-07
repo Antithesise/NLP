@@ -82,3 +82,59 @@ class AutoCorrect:
             e2 for e1 in self.__edits1(word) for e2 in self.__edits1(e1)
         )
 
+class WagnerFischer:
+    def Correct(self, word: str, options: Counter=WORDS) -> str: 
+        """
+        Most probable spelling correction for word.
+        """
+
+        return self.Candidates(word, options=options)[0]
+
+    def Distance(self, word: str, target: str) -> int:
+        matrix = [[x for x in range(len(word) + 1)]] + [[y] + [0] * len(word) for y in range(1, len(target) + 1)]
+        for y in range(1, len(target) + 1):
+            for x in range(1, len(word) + 1):
+
+                matrix[y][x] = min(
+                    matrix[y-1][x] + 1,   # deletion
+                    matrix[y][x-1] + 1,   # insertion
+                    matrix[y-1][x-1] + (  # substitution
+                        target[y-1] != word[x-1]
+                    )
+                )
+
+        return matrix[len(target)][len(word)]
+
+    def Candidates(self, word: str, maxitems: int=100, options: Counter=WORDS) -> list[str]:
+        """
+        Generate possible spelling corrections for word in order of likelyhood.
+        """
+
+        if word == "":
+            return list(dict(options.most_common(maxitems)).keys())
+
+        res: list = (
+            [
+                w for w in [word.lower()] if w in options.keys()
+            ] + sorted(
+                list(
+                    options.keys()
+                ),
+                key=lambda target: self.Distance(word, target),
+                reverse=True
+            ) + [
+                word.lower()
+            ]
+        )
+
+        return [
+            (
+                w * (word == "")
+            ) or (
+                w.upper() * (word.isupper() and len(word) > 1)
+            ) or (
+                w.capitalize() * word[0].isupper()
+            ) or (
+                w
+            ) for w in res[:min(maxitems, len(res))]
+        ]

@@ -1,4 +1,4 @@
-from AutoCorrect import AutoCorrect, WORDS, MAX
+from AutoCorrect import AutoCorrect, WagnerFischer, WORDS, MAX
 from inspect import getfullargspec
 from collections import Counter
 from msvcrt import kbhit, getch
@@ -7,6 +7,7 @@ from time import time
 
 
 AC = AutoCorrect()
+WF = WagnerFischer()
 
 class CLI:
     def __blank(self, *args, **kwargs) -> None:
@@ -21,7 +22,7 @@ class CLI:
 
         return func
 
-    def __call__(self) -> None:
+    def __call__(self, flags: dict={}) -> None:
         """
         Register commands with `add_cmd`.
 
@@ -32,6 +33,11 @@ class CLI:
         # flush stdin
         while kbhit():
             getch()
+
+        maxoptions = flags.get("maxoptions", 5)
+        method = {
+            "w-f": WF, "default": AC
+        }[flags.get("method", "default")]
 
         try:
             while True:
@@ -61,8 +67,8 @@ class CLI:
                         elif ln[0].strip() == "$" and [w.strip() for w in ln if w.strip() if w.strip() != "$"][0] in self.cmds.keys():
                             w |= Counter(argc.get([w.strip() for w in ln if w.strip()][1]) * (MAX + 5)) # command args
 
-                        # set top 5 autocomplete options
-                        possibilities = AC.Candidates(wd, maxitems=5, options=w)
+                        # set top maxoptions autocomplete options
+                        possibilities = method.Candidates(wd, maxitems=maxoptions, options=w)
 
                         if ln != ["$"] and len(possibilities) != 0:
                             # make sure option is within range
@@ -70,7 +76,7 @@ class CLI:
 
                         # print possibilities
                         if possibilities:
-                            for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
+                            for i, o in enumerate(possibilities + ([""] * max(0, maxoptions + 1 - len(possibilities)))):
                                 print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
                         else:
                             print(end="\r\x1b[2K ...\n" + "\r\x1b[2K\n" * 5)
@@ -158,15 +164,15 @@ class CLI:
                                 # make sure option is within range
                                 option = min(option, len(possibilities) - 1)
 
-                            # set top 5 autocomplete options
-                            possibilities = AC.Candidates(wd, maxitems=5, options=w)
+                            # set top maxoptions autocomplete options
+                            possibilities = method.Candidates(wd, maxitems=maxoptions, options=w)
 
                             if (not ch.isalnum()) and ch not in  ["\b", "\x00", "\xe0"]:
                                 break
 
                             # print possibilities
                             if possibilities:
-                                for i, o in enumerate(possibilities + ([""] * max(0, 6 - len(possibilities)))):
+                                for i, o in enumerate(possibilities + ([""] * max(0, maxoptions + 1 - len(possibilities)))):
                                     print(f"\r\x1b[2K{' ' * len(''.join(ln))}" + ("\x1b[7m" * (option == i and len(possibilities) != 0)) + f"{o}\x1b[0m" + f"{' ' * (max([len(p) for p in possibilities]) - len(o) + 4)}\x1b[7m tab \x1b[0m" * (option == i and len(possibilities) != 0))
                             else:
                                 print(end="\r\x1b[2K ...\n" + "\r\x1b[2K\n" * 5)
@@ -190,7 +196,7 @@ class CLI:
                     lns.append(ln) # add line to lines
 
                     if ch == "\x1b": # escape
-                        print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 7 + "\x1b[2K\r")
+                        print(end="\r\x1b[2K\n" * (maxoptions + 1) + "\x1b[A\r" * (maxoptions + 2) + "\x1b[2K\r")
                         break
 
                 for line in lns:
@@ -274,17 +280,17 @@ class CLI:
                 print()
 
         except KeyboardInterrupt:
-            # clear 6 lines below then move cursor up 5 lines then show cursor
-            print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 5 + "\x1b[?25h")
+            # clear maxoptions + 1 lines below then move cursor up maxoptions lines then show cursor
+            print(end="\r\x1b[2K\n" * (maxoptions + 1) + "\x1b[A\r" * maxoptions + "\x1b[?25h")
 
             return
         except EOFError:
-            # clear 6 lines below then move cursor up 5 lines then show cursor
-            print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 5 + "\x1b[?25h")
+            # clear maxoptions + 1 lines below then move cursor up maxoptions lines then show cursor
+            print(end="\r\x1b[2K\n" * (maxoptions + 1) + "\x1b[A\r" * maxoptions + "\x1b[?25h")
 
             return
         except Exception as e:
-            # clear 6 lines below then move cursor up 5 lines then show cursor
-            print(end="\r\x1b[2K\n" * 6 + "\x1b[A\r" * 5 + "\x1b[?25h")
+            # clear maxoptions + 1 lines below then move cursor up maxoptions lines then show cursor
+            print(end="\r\x1b[2K\n" * (maxoptions + 1) + "\x1b[A\r" * maxoptions + "\x1b[?25h")
 
             raise e
