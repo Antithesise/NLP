@@ -121,7 +121,7 @@ class WagnerFischer:
                     options.keys()
                 ),
                 key=lambda target: self.Distance(word, target),
-                reverse=True
+                reverse=False
             ) + [
                 word.lower()
             ]
