@@ -35,4 +35,6 @@ def cat(*text) -> None:
     print(*text)
 
 
-cmdln(flags={"method": "w-f"})
+cmdln(
+    # flags={"method": "w-f"}
+)
