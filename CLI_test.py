@@ -37,7 +37,7 @@ def cat(*text) -> None:
 
 @cmdln.setup
 def message() -> None:
-    print("My CLI v1.0")
+    print(end="My CLI v1.0")
 
 
 cmdln(

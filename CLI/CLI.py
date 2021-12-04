@@ -46,7 +46,7 @@ class CLI:
             getch()
         
         maxoptions = flags.get("maxoptions", 5)
-        method = {
+        method: AutoCorrect | WagnerFischer = {
             "w-f": WF, "default": AC
         }[flags.get("method", "default")]
 
