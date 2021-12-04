@@ -31,8 +31,13 @@ def add(num1: str, num2: str) -> None:
 def sub(num1: str, num2: str) -> None:
     print(int(num1) - int(num2))
 
+@cmdln.add_cmd
 def cat(*text) -> None:
     print(*text)
+
+@cmdln.setup
+def message() -> None:
+    print("My CLI v1.0")
 
 
 cmdln(

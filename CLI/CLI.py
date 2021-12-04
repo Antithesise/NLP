@@ -10,17 +10,28 @@ AC = AutoCorrect()
 WF = WagnerFischer()
 
 class CLI:
-    def __blank(self, *args, **kwargs) -> None:
-        pass
 
     def __init__(self) -> None:
         self.cmds: dict[str, list[str]] = {}
+        self.setupfuncs: list = []
 
     def add_cmd(self, func: Callable) -> Callable:
+        if func.__name__ in dir(self):
+            raise NameError(f"Function {func} is inbuilt or has already been added.")
+
         self.__setattr__(func.__name__, func)
         self.cmds[func.__name__] = getfullargspec(func).kwonlyargs + getfullargspec(func).args
 
         return func
+    
+    def setup(self, func: Callable) -> Callable:
+        self.setupfuncs += [func]
+
+        return func
+    
+    def __setup(self):
+        for f in self.setupfuncs:
+            f()
 
     def __call__(self, flags: dict={}) -> None:
         """
@@ -33,7 +44,7 @@ class CLI:
         # flush stdin
         while kbhit():
             getch()
-
+        
         maxoptions = flags.get("maxoptions", 5)
         method = {
             "w-f": WF, "default": AC
@@ -53,6 +64,8 @@ class CLI:
 
                     while True: # words
                         wd: str = "" # word
+
+                        self.__setup()
 
                         w = Counter(WORDS) # base autocomplete options
 
@@ -145,6 +158,8 @@ class CLI:
                                 else: # try to delete when there is nothing to delete
                                     print(end="\a")
 
+                            self.__setup()
+
                             w = Counter(WORDS) # base autocomplete options
 
                             if ln == []:
@@ -212,6 +227,9 @@ class CLI:
                     # get name of cmd
                     cmd = [w.strip() for w in line[1:] if w.strip() and w.strip() != "$"][0]
 
+                    if cmd not in self.cmds:
+                        continue
+
                     cmdargs: list[str] = []
                     cmdkwargs: dict[str, str] = {}
 
@@ -268,12 +286,7 @@ class CLI:
                             i += 1
 
                     try:
-                        if cmd in [sf for sf in dir(self) if callable(self.__getattribute__(sf)) and sf[0] != "_"]:
-                            f = self.__getattribute__(cmd) # try to find command.
-                        else:
-                            f = self.__blank # if invalid, set it to the default
-
-                        f(*cmdargs, **cmdkwargs) # call func
+                        self.__getattribute__(cmd)(*cmdargs, **cmdkwargs) # call func
                     except Exception as e:
                         print(e) # debugging
 
