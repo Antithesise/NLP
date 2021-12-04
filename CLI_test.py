@@ -35,9 +35,9 @@ def sub(num1: str, num2: str) -> None:
 def cat(*text) -> None:
     print(*text)
 
-@cmdln.setup
+@cmdln.setup(1)
 def message() -> None:
-    print(end="My CLI v1.0")
+    print("My CLI v1.0")
 
 
 cmdln(

@@ -13,7 +13,7 @@ class CLI:
 
     def __init__(self) -> None:
         self.cmds: dict[str, list[str]] = {}
-        self.setupfuncs: list = []
+        self.setupfuncs: dict[Callable, int] = {}
 
     def add_cmd(self, func: Callable) -> Callable:
         if func.__name__ in dir(self):
@@ -24,14 +24,19 @@ class CLI:
 
         return func
     
-    def setup(self, func: Callable) -> Callable:
-        self.setupfuncs += [func]
+    def setup(self, lines: int) -> Callable:
+        def wrapper(func: Callable) -> Callable:
+            self.setupfuncs[func] = lines
 
-        return func
+            return func
+
+        return wrapper
     
-    def __setup(self):
-        for f in self.setupfuncs:
+    def __setup(self) -> int:
+        for f in self.setupfuncs.keys():
             f()
+        
+        return sum(self.setupfuncs.values())
 
     def __call__(self, flags: dict={}) -> None:
         """
@@ -65,7 +70,7 @@ class CLI:
                     while True: # words
                         wd: str = "" # word
 
-                        self.__setup()
+                        setuplns = self.__setup()
 
                         w = Counter(WORDS) # base autocomplete options
 
@@ -158,7 +163,9 @@ class CLI:
                                 else: # try to delete when there is nothing to delete
                                     print(end="\a")
 
-                            self.__setup()
+                            print(f"\x1b[A{setuplns}")
+
+                            setuplns = self.__setup()
 
                             w = Counter(WORDS) # base autocomplete options
 
