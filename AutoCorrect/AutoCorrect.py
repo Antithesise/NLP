@@ -2,7 +2,7 @@ from collections import Counter
 from re import findall
 
 
-with open("AutoCorrect/big.txt") as f:
+with open("big.txt") as f:
     WORDS = Counter(findall("\\w+", f.read().lower()))
 
 MAX = WORDS.most_common(1)[0][1] # maximum count of any word
