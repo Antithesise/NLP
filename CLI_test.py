@@ -5,6 +5,7 @@ from CLI import CLI
 
 cmdln = CLI()
 
+
 @cmdln.add_cmd
 def echo(*text: str, sep: str=" ", end: str="\n", flush: bool=False) -> None:
     print(*text, sep=sep, end=end, flush=flush)

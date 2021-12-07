@@ -1,5 +1,6 @@
 from math import *
 
+
 def factors(x) -> list[int]:
     f = []
 

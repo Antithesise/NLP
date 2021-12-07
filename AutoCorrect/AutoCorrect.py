@@ -7,6 +7,7 @@ with open("big.txt") as f:
 
 MAX = WORDS.most_common(1)[0][1] # maximum count of any word
 
+
 class AutoCorrect:
     def Correct(self, word: str, options: Counter=WORDS) -> str: 
         """

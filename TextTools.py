@@ -6,8 +6,9 @@ https://stackoverflow.com/a/266162/15081390
 from collections import Counter
 from string import punctuation
 
+
 with open("big.txt") as f:
-        words = f.read().split()
+    words = f.read().split()
 
 
 def wrd(text: str) -> list[str]: # split a paragraph into words

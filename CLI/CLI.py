@@ -9,8 +9,8 @@ from time import time
 AC = AutoCorrect()
 WF = WagnerFischer()
 
-class CLI:
 
+class CLI:
     def __init__(self) -> None:
         self.cmds: dict[str, list[str]] = {}
         self.setupfuncs: dict[Callable, int] = {}
