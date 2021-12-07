@@ -3,7 +3,21 @@ https://www.agiliq.com/assets/code/markovgen.py
 """
 
 from random import randint, choice
+from TextTools import words
 
+
+def MarkovDict(length: int) -> dict[tuple[str], str]:
+    mdict = {}
+
+    for i in range(len(words) - length):
+        key = tuple(words[i+j] for j in range(length))
+
+        if key in mdict:
+            mdict[key].append(words[i + length])
+        else:
+            mdict[key] = [words[i + length]]
+    
+    return mdict
 
 def RandText(sentences: int=15, randomness: float=0.8) -> str:
     """
@@ -17,18 +31,7 @@ def RandText(sentences: int=15, randomness: float=0.8) -> str:
         str: The resulting generated text
     """
 
-    cache = {}
-
-    with open("big.txt") as f:
-        words = f.read().split()
-
-    for i in range(len(words) - (11 - int(randomness * 10))):
-        key = tuple(words[i+j] for j in range(11 - int(randomness * 10)))
-
-        if key in cache:
-            cache[key].append(words[i + (11 - int(randomness * 10))])
-        else:
-            cache[key] = [words[i + (11 - int(randomness * 10))]]
+    cache = MarkovDict(11 - int(randomness * 10))
 
     seed = randint(0, len(words) - (11 - int(randomness * 10)))
     while not (words[seed-1][-1].endswith(tuple(".?!")) and words[seed][0].isupper() and words[seed][0].isalpha() and words[seed-1][-2] != "."):
@@ -47,6 +50,7 @@ def RandText(sentences: int=15, randomness: float=0.8) -> str:
         wlist = [*wlist[1:], choice(cache[tuple(wlist)])]
 
     return " ".join(gen_words)
+
 
 if __name__ == "__main__":
     print(RandText(int(input("Sentences: ") or 5), float(input("Randomness (0.0-1.0): ") or 0.6)))

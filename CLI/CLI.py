@@ -163,9 +163,11 @@ class CLI:
                                 else: # try to delete when there is nothing to delete
                                     print(end="\a")
 
-                            print(f"\x1b[A{setuplns}")
+                            print(end=f"\x1b[{setuplns + 1}A")
 
                             setuplns = self.__setup()
+
+                            print(end="\n"*bool(setuplns))
 
                             w = Counter(WORDS) # base autocomplete options
 

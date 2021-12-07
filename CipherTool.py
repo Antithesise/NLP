@@ -1,6 +1,6 @@
 from TextTools import wrd, suffixes, gridify
 from collections import Counter
-from RandText import RandText
+from MarkovText import RandText
 from random import shuffle
 from os import system
 
