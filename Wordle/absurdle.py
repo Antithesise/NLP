@@ -1,3 +1,4 @@
+from typing import Counter
 from random import choice
 from msvcrt import getch
 from time import sleep
@@ -9,7 +10,9 @@ with open("words.txt") as f:
 
 with open("valid.txt") as f:
     valid = f.read().split()
-    
+
+absurds = sorted(words, key=lambda w: sum([Counter("".join(words))[l] for l in w] + [(len(list(w)) - len(set(w))) * 26]))
+
 green = "\x1b[48;2;83;141;78m"
 yellow = "\x1b[48;2;181;159;59m"
 grey = "\x1b[48;2;58;58;60m"
@@ -21,22 +24,28 @@ mstreak = 0
 dist = [0, 0, 0, 0, 0, 0]
 
 
+def match(k, c, r, word) -> bool:
+    if any([l != lw and l for l, lw in zip(k, word)]):
+        return False
+
+    if any([lw in l for l, lw in zip(c, word)]):
+        return False
+
+    if any([l not in word for l in "".join(c)]):
+        return False
+
+    if any([l in word for l in r]):
+        return False
+    
+    return True
+
+
 while True:
     system("cls")
 
     games += 1
-
-    id = input("Enter Word ID or press ENTER to select random word: #")
-
     word = choice(words)
-
-    if id.strip():
-        try:
-            word = words[int(id, 16)]
-        except Exception:
-            pass
-        
-    guess = ""
+    pos = [[""] * 5, [""] * 5, []] # keep, change, remove
     n = 0
 
     system("cls")
@@ -78,7 +87,7 @@ while True:
         n += 1
 
         if guess == word:
-            print(f"You win! (Word ID: #{hex(words.index(word))[2:].upper().zfill(3)})")
+            print(f"You win!")
             won += 1
             streak += 1
             mstreak = max(streak, mstreak)
@@ -95,7 +104,7 @@ while True:
 
             break
         elif n == 6:
-            print(f"You lose. The answer was {word}  (Word ID: #{hex(words.index(word))[2:].upper().zfill(3)})")
+            print(f"You lose. The answer was {word}")
             streak = 0
 
             print("STATISTICS")
@@ -108,3 +117,15 @@ while True:
             getch()
 
             break
+
+        for i, l in enumerate(guess):
+            if l not in word:
+                pos[-1] += l
+            elif l == word[i]:
+                pos[0][i] == l
+            else:
+                pos[1][i] += l
+
+        absurds = [w for w in absurds if match(*pos, w)]
+
+        word = absurds[0]
