@@ -11,8 +11,6 @@ with open("words.txt") as f:
 with open("valid.txt") as f:
     valid = f.read().split()
 
-absurds = sorted(words, key=lambda w: sum([Counter("".join(words))[l] for l in w] + [(len(list(w)) - len(set(w))) * 26]))
-
 green = "\x1b[48;2;83;141;78m"
 yellow = "\x1b[48;2;181;159;59m"
 grey = "\x1b[48;2;58;58;60m"
@@ -45,6 +43,7 @@ while True:
 
     games += 1
     word = choice(words)
+    absurds = sorted(words, key=lambda w: sum([Counter("".join(words))[l] for l in w] + [(len(list(w)) - len(set(w))) * 26]))
     pos = [[""] * 5, [""] * 5, []] # keep, change, remove
     n = 0
 
