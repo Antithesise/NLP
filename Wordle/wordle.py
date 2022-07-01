@@ -34,7 +34,7 @@ while True:
 
     if id.strip():
         try:
-            word = words[int(id, 16)]
+            word = id # words[int(id, 16)]
         except Exception:
             pass
     

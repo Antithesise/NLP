@@ -1,147 +1,119 @@
 from re import split
 
 
-pronouns = [
-    "all",
-    "any",
-    "anybody",
-    "anyone",
-    "anything",
-    "both",
-    "each other",
-    "each",
-    "either",
-    "enough",
-    "everybody",
-    "everyone",
-    "everything",
-    "few",
-    "he",
-    "herself",
-    "him",
-    "himself",
-    "I",
-    "it",
-    "itself",
-    "many",
-    "me",
-    "mine",
-    "most",
-    "myself",
-    "naught",
-    "neither",
-    "no one",
-    "nobody",
-    "none",
-    "nothing",
-    "nought",
-    "one another",
-    "one",
-    "others",
-    "ought",
-    "ours",
-    "ourself",
-    "ourselves",
-    "several",
-    "she",
-    "some",
-    "somebody",
-    "someone",
-    "something",
-    "somewhat",
-    "such",
-    "suchlike",
-    "that",
-    "thee",
-    "theirs",
-    "theirself",
-    "theirselves",
-    "them",
-    "themself",
-    "themselves",
-    "there",
-    "these",
-    "they",
-    "thine",
+determiners = [
+    "the",
+    "a",
+    "an",
     "this",
+    "that",
+    "these",
     "those",
-    "thou",
-    "thyself",
+    "my",
+    "your",
+    "his",
+    "her",
+    "its",
+    "our",
     "us",
     "we",
+    "them",
+    "their",
+    "other",
+    "another",
+    "such",
     "what",
     "whatever",
-    "whatnot",
-    "whatsoever",
-    "whence",
-    "where",
-    "whereby",
-    "wherefrom",
-    "wherein",
-    "whereinto",
-    "whereof",
-    "whereon",
-    "wherever",
-    "wheresoever",
-    "whereto",
-    "whereunto",
-    "wherewith",
-    "wherewithal",
-    "whether",
     "which",
     "whichever",
-    "whichsoever",
-    "who",
-    "whoever",
-    "whom",
-    "whomever",
-    "whomso",
-    "whomsoever",
-    "whose",
-    "whosever",
-    "whosesoever",
-    "whoso",
-    "whosoever",
-    "ye",
-    "yon",
-    "yonder",
-    "you",
-    "yours",
-    "yourself",
-    "yourselves"
+    "rather",
+    "quite",
+    "last",
+    "next",
+    "certain",
 ]
 
-pronouns2 = [
-    "another",
-    "her",
-    "his",
-    "its",
-    "my",
-    "other",
-    "our",
-    "their",
-    "thy",
-    "your",
+quantifiers_distributives = [
+    "few",
+    "fewer",
+    "fewest",
+    "little",
+    "less",
+    "least",
+    "much",
+    "many",
+    "more",
+    "most",
+    "lot",
+    "lots",
+    "most",
+    "some",
+    "any",
+    "enough",
+    "all",
+    "both",
+    "half",
+    "either",
+    "neither",
+    "each",
+    "every",
+    "several",
+    "few",
+]
+
+adjective_suffixes = [
+    "able",
+    "ible",
+    "al",
+    "ful",
+    "ian",
+    "ive",
+    "less",
+    "like",
+    "ly",
+    "ous"
+]
+
+verb_suffixes = [
+    "ed",
+    "en",
+    "er",
+    "ing",
+    "ize",
+    "ise",
+    "ened",
+    "ered",
+    "ized",
+    "isee",
 ]
 
 
 while True:
     sentence = [w for w in split(r" |('[a-z]+)", input("> ").lower()) if w]
-    subj = ""
-    verb = ""
-    obj = ""
+    noun_phrase = ""
+    verb_phrase = ""
 
-    subj = sentence.pop(0)
+    while True:
+        if sentence[0] in determiners:
+            pass
+        elif sentence[0] in quantifiers_distributives:
+            pass
+        elif sentence[1] in quantifiers_distributives:
+            pass
+        elif any(sentence[0].endswith(s) for s in adjective_suffixes) and any(sentence[1].endswith(s) for s in verb_suffixes):
+            noun_phrase += sentence.pop(0) + " "
+        elif any(sentence[0].endswith(s) for s in adjective_suffixes):
+            pass
+        elif sentence[0] == "of":
+            pass
+        else:
+            break
 
-    if subj in pronouns2 and sentence[0] != "'s":
-        subj += " " + sentence.pop(0)
+        noun_phrase += sentence.pop(0) + " "
 
-    while sentence[0] == "'s":
-        subj += sentence.pop(0) + " " + sentence.pop(0)
+    noun_phrase += sentence.pop(0)
 
-    verb = sentence.pop(0)
-
-    obj = " ".join(sentence)
+    verb_phrase = " ".join(sentence)
 
 
-    print(subj, verb, obj, sep="\n")
+    print(noun_phrase, verb_phrase, sep="\n")
