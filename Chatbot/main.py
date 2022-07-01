@@ -100,10 +100,9 @@ while True:
             pass
         elif sentence[1] in quantifiers_distributives:
             pass
-        elif any(sentence[0].endswith(s) for s in adjective_suffixes) and any(sentence[1].endswith(s) for s in verb_suffixes):
-            noun_phrase += sentence.pop(0) + " "
         elif any(sentence[0].endswith(s) for s in adjective_suffixes):
-            pass
+            if any(sentence[1].endswith(s) for s in verb_suffixes):
+                noun_phrase += sentence.pop(0) + " "
         elif sentence[0] == "of":
             pass
         else:
