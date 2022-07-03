@@ -477,7 +477,7 @@ class Parse:
                         elif self.sentence[0] in self.conjunctions:
                             self.add(CONJ)
                         
-                        elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
+                        elif self.sentence[1] in self.punctuation or self.sentence[1] in self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                             self.add(NOUN)
 
                         else:
