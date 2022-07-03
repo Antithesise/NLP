@@ -119,7 +119,6 @@ class Parse:
         "ize",
         "ise",
     ]
-
     prepositions = [
         "a",
         "aboard",
@@ -321,58 +320,81 @@ class Parse:
         "with",
         "within",
         "without"]
-    punctuation = ",.;:?!".split()
+    punctuation = ",.;:?!"
 
     def __init__(self, sentence: str) -> None:
         self.sentence = [w for w in split(r" |(?=[,.;:?!])", sentence.lower()) if w]
         self.out = SENTENCE()
+    
+    def add(self, WClass: NOUN | ADJ | ADV | VERB | AUX | DET | PRON | PREP | INT | CONJ | PUNC) -> None:
+        self.out.append(WClass(self.sentence.pop(0)))
 
     def __call__(self) -> list:
-        while any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
-            self.out.append(ADV(self.sentence.pop(0)))
+        while any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+            if self.sentence[1] not in self.punctuation:
+                while not self.sentence[0] in self.punctuation:
+                    if self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives:
+                        self.add(DET)
+
+                    elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+                        self.add(PREP)
+                    
+                    elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s"):
+                        self.add(NOUN)
+
+                    else:
+                        self.add(ADJ)
+                        
+            else:
+                self.add(ADV)
+            
+            self.add(PUNC)
+
+        if any(self.sentence[0].endswith(s) and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
+            while any(self.sentence[1].endswith(s) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
+                self.add(AUX)
+
+            self.add(VERB)
 
         while True:
             if self.sentence[0] in self.punctuation:
-                self.out.append(PUNC(self.sentence.pop()))
+                self.add(PUNC)
 
-            elif self.sentence[0] in self.determiners:
-                self.out.append(DET(self.sentence.pop(0)))
-
-            elif self.sentence[0] in self.quantifiers_distributives:
-                self.out.append(DET(self.sentence.pop(0)))
-
-            elif self.sentence[1] in self.quantifiers_distributives:
-                self.out.append(DET(self.sentence.pop(0)))
+            elif self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives:
+                self.add(DET)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                self.out.append(PREP(self.sentence.pop(0)))
+                self.add(PREP)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes):
                 if any(self.sentence[1].endswith(s) and self.sentence[0] != s and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[1].endswith("n't"):
-                    self.out.append(ADV(self.sentence.pop(0)))
+                    self.add(ADV)
 
                     while any(self.sentence[1].endswith(s) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
-                        self.out.append(AUX(self.sentence.pop(0)))
+                        self.add(AUX)
 
-                    self.out.append(VERB(self.sentence.pop(0)))
+                    self.add(VERB)
 
                 else:
-                    self.out.append(ADJ(self.sentence.pop(0)))
+                    self.add(ADJ)
+            
+            elif self.sentence[0].endswith("'s"):
+                self.add(NOUN)
 
             else:
                 break
 
-        self.out.append(NOUN(self.sentence.pop(0)))
+        self.add(NOUN)
 
         while len(self.sentence) > 1:
             if self.sentence[0] in self.punctuation:
-                self.out.append(PUNC(self.sentence.pop()))
+                self.add(PUNC)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.adjective_suffixes):
-                self.out.append(ADV(self.sentence.pop(0)))
+                self.add(ADV)
 
             elif any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
-                self.out.append(AUX(self.sentence.pop(0)))
+                self.add(AUX)
 
             else:
                 break
@@ -380,54 +402,56 @@ class Parse:
             if not self.sentence:
                 return self.out
 
-        self.out.append(VERB(self.sentence.pop(0)))
+        self.add(VERB)
+
+        if self.sentence:
+            if self.sentence[0] == "to":
+                self.add(AUX)
+                self.add(VERB)
 
         while len(self.sentence) > 1:
             if self.sentence[0] in self.punctuation:
-                self.out.append(PUNC(self.sentence.pop()))
+                self.add(PUNC)
 
-            elif self.sentence[0] in self.determiners:
-                self.out.append(DET(self.sentence.pop(0)))
-
-            elif self.sentence[0] in self.quantifiers_distributives:
-                self.out.append(DET(self.sentence.pop(0)))
-
-            elif self.sentence[1] in self.quantifiers_distributives:
-                self.out.append(DET(self.sentence.pop(0)))
+            elif self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives:
+                self.add(DET)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                self.out.append(PREP(self.sentence.pop(0)))
+                self.add(PREP)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes):
                 if any(self.sentence[1].endswith(s) and self.sentence[0] != s and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[1].endswith("n't"):
-                    self.out.append(ADV(self.sentence.pop(0)))
+                    self.add(ADV)
 
                     while any(self.sentence[1].endswith(s) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
-                        self.out.append(AUX(self.sentence.pop(0)))
+                        self.add(AUX)
 
-                    self.out.append(VERB(self.sentence.pop(0)))
+                    self.add(VERB)
 
                 else:
-                    self.out.append(ADJ(self.sentence.pop(0)))
+                    self.add(ADJ)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.verb_suffixes) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")):
-                self.out.append(ADJ(self.sentence.pop(0)))
+                self.add(ADJ)
 
             else:
                 break
 
         while self.sentence:
             if self.sentence[0] in self.punctuation:
-                self.out.append(PUNC(self.sentence.pop()))
+                self.add(PUNC)
 
             elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
-                self.out.append(ADJ(self.sentence.pop(0)))
+                self.add(ADJ)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                self.out.append(PREP(self.sentence.pop(0)))
+                self.add(PREP)
+            
+            elif self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives:
+                self.add(DET)
 
             else:
-                self.out.append(NOUN(self.sentence.pop(0)))
+                self.add(NOUN)
     
         return self.out
 
