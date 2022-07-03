@@ -6,37 +6,37 @@ class SENTENCE(list):
         return "SENTENCE( %s )" % " ".join([repr(w) for w in self.copy()])
 class NOUN(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (n)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (n)"
 class ADJ(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (adj)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (adj)"
 class ADV(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (adv)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (adv)"
 class VERB(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (v)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (v)"
 class AUX(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (aux)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (aux)"
 class DET(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (d)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (d)"
 class PRON(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (pn)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (pn)"
 class PREP(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (pre)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (pre)"
 class INT(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (int)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (int)"
 class CONJ(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"") + " (cj)"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (cj)"
 class PUNC(str):
     def __repr__(self) -> str:
-        return super().__repr__().strip("'\"")
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"")
 
 class Parse:
     determiners = [
@@ -339,7 +339,7 @@ class Parse:
                     elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                         self.add(PREP)
                     
-                    elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s"):
+                    elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                         self.add(NOUN)
 
                     else:
@@ -378,7 +378,7 @@ class Parse:
                 else:
                     self.add(ADJ)
             
-            elif self.sentence[0].endswith("'s"):
+            elif self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                 self.add(NOUN)
 
             else:
