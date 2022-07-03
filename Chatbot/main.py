@@ -455,33 +455,34 @@ class Parse:
         self.out.append(WClass(self.sentence.pop(0)))
 
     def __call__(self) -> list:
-        while any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-            if self.sentence[1] not in self.punctuation:
-                while not self.sentence[0] in self.punctuation:
-                    if self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives:
-                        self.add(DET)
+        if any(s in self.sentence[:-1] for s in self.punctuation):
+            while any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+                if self.sentence[1] != ",":
+                    while not self.sentence[0] == ",":
+                        if self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives and self.sentence[1] != ",":
+                            self.add(DET)
 
-                    elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                        self.add(PREP)
-                    
-                    elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
-                        self.add(NOUN)
-
-                    else:
-                        self.add(ADJ)
+                        elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+                            self.add(PREP)
                         
-            else:
-                self.add(ADV)
-            
-            self.add(PUNC)
+                        elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
+                            self.add(NOUN)
 
-        if any(self.sentence[0].endswith(s) and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
-            while any(self.sentence[1].endswith(s) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
-                self.add(AUX)
+                        else:
+                            self.add(ADJ)
+                            
+                else:
+                    self.add(ADV)
+                
+                self.add(PUNC)
 
-            self.add(VERB)
+            if any(self.sentence[0].endswith(s) and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
+                while any(self.sentence[1].endswith(s) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[0].endswith("n't"):
+                    self.add(AUX)
 
-        while True:
+                self.add(VERB)
+
+        while len([w for w in self.sentence if w not in self.punctuation]) > 1:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
@@ -509,7 +510,10 @@ class Parse:
             else:
                 break
 
-        self.add(NOUN)
+        if len([w for w in self.sentence if w not in self.punctuation]) == 1:
+            self.add(INT)
+        else:
+            self.add(NOUN)
 
         while len(self.sentence) > 1:
             if self.sentence[0] in self.punctuation:
@@ -524,8 +528,15 @@ class Parse:
             else:
                 break
 
-            if not self.sentence:
-                return self.out
+        while self.sentence:
+            if self.sentence[0] in self.punctuation:
+                self.add(PUNC)
+            else:
+                break
+        
+        if not self.sentence:
+            return self.out
+
 
         self.add(VERB)
 
