@@ -119,6 +119,15 @@ class Parse:
         "ize",
         "ise",
     ]
+    conjunctions = [
+        "and",
+        "but",
+        "for",
+        "nor",
+        "or",
+        "so"
+        "yet",
+    ]
     prepositions = [
         "a",
         "aboard",
@@ -455,7 +464,7 @@ class Parse:
         self.out.append(WClass(self.sentence.pop(0)))
 
     def __call__(self) -> list:
-        if any(s in self.sentence[:-1] for s in self.punctuation):
+        if "," in self.sentence:
             while any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                 if self.sentence[1] != ",":
                     while not self.sentence[0] == ",":
@@ -464,6 +473,9 @@ class Parse:
 
                         elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                             self.add(PREP)
+                        
+                        elif self.sentence[0] in self.conjunctions:
+                            self.add(CONJ)
                         
                         elif self.sentence[1] in self.punctuation or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                             self.add(NOUN)
@@ -482,6 +494,14 @@ class Parse:
 
                 self.add(VERB)
 
+                if self.sentence:
+                    while self.sentence[0] == "to" and isinstance(self.out[-1]):
+                        self.add(AUX)
+
+                        if len(self.sentence) > 1:
+                            if self.sentence[1] == "to":
+                                self.add(VERB)
+
         while len([w for w in self.sentence if w not in self.punctuation]) > 1:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
@@ -492,6 +512,9 @@ class Parse:
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                 self.add(PREP)
 
+            elif self.sentence[0] in self.conjunctions:
+                self.add(CONJ)
+
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes):
                 if any(self.sentence[1].endswith(s) and self.sentence[0] != s and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[1].endswith("n't"):
                     self.add(ADV)
@@ -500,6 +523,14 @@ class Parse:
                         self.add(AUX)
 
                     self.add(VERB)
+
+                    if self.sentence:
+                        while self.sentence[0] == "to" and isinstance(self.out[-1]):
+                            self.add(AUX)
+
+                            if len(self.sentence) > 1:
+                                if self.sentence[1] == "to":
+                                    self.add(VERB)
 
                 else:
                     self.add(ADJ)
@@ -541,9 +572,17 @@ class Parse:
         self.add(VERB)
 
         if self.sentence:
-            if self.sentence[0] == "to":
+            while self.sentence[0] == "to" and isinstance(self.out[-1], VERB):
                 self.add(AUX)
-                self.add(VERB)
+
+                if self.sentence:
+                    if all([any(w.endswith(s) for s in self.verb_suffixes) for w in self.sentence if w not in self.punctuation]):
+                        self.add(VERB)
+                    elif len(self.sentence) > 1:
+                        if self.sentence[1] == "to":
+                            self.add(VERB)
+                else:
+                    return self.out
 
         while len(self.sentence) > 1:
             if self.sentence[0] in self.punctuation:
@@ -554,6 +593,9 @@ class Parse:
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                 self.add(PREP)
+            
+            elif self.sentence[0] in self.conjunctions:
+                self.add(CONJ)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes):
                 if any(self.sentence[1].endswith(s) and self.sentence[0] != s and self.sentence[1] not in (self.quantifiers_distributives + self.determiners) for s in self.verb_suffixes) or self.sentence[1].endswith("n't"):
@@ -563,6 +605,14 @@ class Parse:
                         self.add(AUX)
 
                     self.add(VERB)
+
+                    if self.sentence:
+                        while self.sentence[0] == "to" and isinstance(self.out[-1]):
+                            self.add(AUX)
+
+                            if len(self.sentence) > 1:
+                                if self.sentence[1] == "to":
+                                    self.add(VERB)
 
                 else:
                     self.add(ADJ)
@@ -577,14 +627,17 @@ class Parse:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
+            elif self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives:
+                self.add(DET)
+
             elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
                 self.add(ADJ)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                 self.add(PREP)
             
-            elif self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives:
-                self.add(DET)
+            elif self.sentence[0] in self.conjunctions:
+                self.add(CONJ)
 
             else:
                 self.add(NOUN)
