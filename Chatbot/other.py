@@ -585,10 +585,7 @@ class Parse:
                     return self.out
 
         while len(self.sentence) > 1:
-            if self.sentence[0] in self.punctuation:
-                self.add(PUNC)
-
-            elif self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives:
+            if self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives:
                 self.add(DET)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
