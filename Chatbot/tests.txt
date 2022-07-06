@@ -1,0 +1,35 @@
+Fortunately, this sentence parses correctly.
+Ouch!
+Oh.
+No?
+The cake is baking.
+The cook is baking.
+The cook is baking cake.
+the cook is baking a cake.
+This example illustrates several interesting features of context-free grammars.
+We have had enough.
+I like to eat grass.
+I like to eat grass on Wednesdays.
+On Mondays, strangely, I like to eat grass.
+On Mondays, I only eat grass, strangely.
+I like rain and snow.
+I like to jump and shout!
+I like to listen to music and the sounds of nature.
+On Sundays and Wednesdays, I like to eat warm tasty bread.
+When eating or drinking, my blood pressure goes up.
+Cows like to eat grass.
+I eat grass.
+I touch grass.
+I feel.
+I feel real.
+I am real.
+I'm real.
+I taste like a human.
+I am a human.
+My mother is also a human.
+My friend's dad is an alien.
+wow, this works.
+this works sometimes.
+He sleeps.
+My mum doesn't really like bread.
+At least half of these tests will succeed.
