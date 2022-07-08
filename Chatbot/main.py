@@ -684,10 +684,10 @@ if __name__ == "__main__":
                     print("    Last state recorder:", p.out)
 
         while True:
-            p = Parse(input("\n > "))
+            p = Parse(input("\n >  "))
 
             try:
                 print("\n   ", p())
             except Exception as e:
-                print("Error:", e)
-                print("Last state recorded:", p.out)
+                print("\n    Error:", e)
+                print("    Last state recorded:", p.out)
