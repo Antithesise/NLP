@@ -38,6 +38,7 @@ class PUNC(str):
     def __repr__(self) -> str:
         return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"")
 
+
 class Parse:
     determiners = [
         "the",
@@ -671,16 +672,6 @@ class Parse:
 
 
 if __name__ == "__main__":
-    if False:
-        while True:
-            p = Parse(input("\n > "))
-
-            try:
-                print("\n   ", p())
-            except Exception as e:
-                print("Error:", e)
-                print("Last state recorded:", p.out)
-    else:
         with open("tests.txt") as f:
             for l in f.read().split("\n"):
                 p = Parse(l)
@@ -691,3 +682,12 @@ if __name__ == "__main__":
                 except Exception as e:
                     print("\n    Error:", e)
                     print("    Last state recorder:", p.out)
+
+        while True:
+            p = Parse(input("\n > "))
+
+            try:
+                print("\n   ", p())
+            except Exception as e:
+                print("Error:", e)
+                print("Last state recorded:", p.out)
