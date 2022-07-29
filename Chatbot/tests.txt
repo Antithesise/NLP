@@ -5,7 +5,7 @@ No? | int punc
 The cake is baking. | d n aux v punc
 The cook is baking. | d n aux v punc
 The cook is baking cake. | d n aux v n punc
-the cook is baking a cake. | d n aux v d n punc
+The cook is baking a cake. | d n aux v d n punc
 This example illustrates several interesting features of context-free grammars. | d n v d adj n pre adj n punc
 We have had enough. | pn v aux pn punc
 He had had too much to eat. | pn v aux d d pre n punc
@@ -29,8 +29,8 @@ I taste like a human. | pn v pre d n punc
 I am a human. | pn v d n punc
 My mother is also a human. | d n v adv d n punc
 My friend's dad is an alien. | d n n v d n punc
-wow, this works. | int punc pn v punc
-this works sometimes. | pn v adj punc
+Wow, this works. | int punc pn v punc
+This works sometimes. | pn v adj punc
 He sleeps. | pn v punc
 My mum doesn't really like bread. | d n aux adv v n punc
 At least half of these tests will succeed. | d d d pre d n aux v punc
