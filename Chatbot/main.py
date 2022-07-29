@@ -478,7 +478,7 @@ class Parse:
                         elif self.sentence[0] in self.pronouns:
                             self.add(PRON)
                         
-                        elif self.sentence[0] == "too":
+                        elif self.sentence[0] in ["also", "too"]:
                             self.add(ADV)
 
                         elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
@@ -519,7 +519,7 @@ class Parse:
             elif (self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation:
                 self.add(DET)
             
-            elif self.sentence[0] == "too":
+            elif self.sentence[0] in ["also", "too"]:
                 self.add(ADV)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
@@ -565,7 +565,7 @@ class Parse:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.adjective_suffixes) or self.sentence[0] == "too":
+            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.adjective_suffixes) or self.sentence[0] in ["also", "too"]:
                 self.add(ADV)
 
             elif (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners + self.pronouns)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
@@ -585,7 +585,7 @@ class Parse:
 
         self.add(VERB)
 
-        if self.sentence[0] == "too":
+        if self.sentence[0] in ["also", "too"]:
             self.add(ADV)
 
         if self.sentence:
@@ -682,7 +682,7 @@ class Parse:
             elif self.sentence[0] in self.pronouns:
                 self.add(PRON)
 
-            elif self.sentence[0] == "too":
+            elif self.sentence[0] in ["also", "too"]:
                 self.add(ADV)
 
             elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):

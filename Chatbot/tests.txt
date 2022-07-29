@@ -16,7 +16,7 @@ On Mondays, strangely, I like to eat grass. | pre n punc adv punc pn v aux v pun
 On Mondays, I only eat grass, strangely. | pre n punc pn adv v n punc adv punc
 I like rain and snow. | pn v n conj n punc
 I like to jump and shout! | pn v aux v conj v punc
-I like to listen to music and the sounds of nature. | pn v aux v pre n conj d n pre n punc
+I like to listen to music and the sounds of nature. | pn v aux v aux n conj d n pre n punc
 On Sundays and Wednesdays, I like to eat warm tasty bread. | pre n conj n punc pn v aux v adj adj n punc
 When eating or drinking, my blood-pressure goes up. | pre v conj v punc pn n v adv punc
 I eat grass. | pn v n punc
