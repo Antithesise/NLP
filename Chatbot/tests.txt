@@ -8,7 +8,7 @@ The cook is baking cake. | d n aux v n punc
 The cook is baking a cake. | d n aux v d n punc
 This example illustrates several interesting features of context-free grammars. | d n v d adj n pre adj n punc
 We have had enough. | pn v aux pn punc
-He had had too much to eat. | pn v aux d d pre n punc
+He had had too much to eat. | pn v aux adv d pre n punc
 Cows like to eat grass. | n v aux v n punc
 I like to eat grass. | pn v aux v n punc
 I like to eat grass on Wednesdays. | pn v aux v n pre n punc
@@ -37,3 +37,4 @@ At least half of these tests will succeed. | d d d pre d n aux v punc
 His cats hate each other. | d n v pn punc
 That car is his. | d n v pn punc
 That car belongs to him. | d n v aux pn punc
+He too, had too much to eat. | pn adv punc v adv d pre n punc
