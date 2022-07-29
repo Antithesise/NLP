@@ -1,42 +1,39 @@
-from re import split
+from re import split, sub
 
 
 class SENTENCE(list):
     def __repr__(self) -> str:
         return " ".join([repr(w) for w in self.copy()])
-class NOUN(str):
+class WORDCLASS(str):
+    wordclass: str
+
     def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (n)"
-class ADJ(str):
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + f" ({self.wordclass})"
+class NOUN(WORDCLASS):
+    wordclass = "n"
+class ADJ(WORDCLASS):
+    wordclass = "adj"
+class ADV(WORDCLASS):
+    wordclass = "adv"
+class VERB(WORDCLASS):
+    wordclass = "v"
+class AUX(WORDCLASS):
+    wordclass = "aux"
+class DET(WORDCLASS):
+    wordclass = "d"
+class PRON(WORDCLASS):
+    wordclass = "pn"
+class PREP(WORDCLASS):
+    wordclass = "pre"
+class INT(WORDCLASS):
+    wordclass = "int"
+class CONJ(WORDCLASS):
+    wordclass = "conj"
+class PUNC(WORDCLASS):
+    wordclass = "punc"
+
     def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (adj)"
-class ADV(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (adv)"
-class VERB(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (v)"
-class AUX(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (aux)"
-class DET(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (d)"
-class PRON(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (pn)"
-class PREP(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (pre)"
-class INT(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (int)"
-class CONJ(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + " (cj)"
-class PUNC(str):
-    def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"")
+        return self
 
 
 class Parse:
@@ -54,8 +51,6 @@ class Parse:
         "her",
         "its",
         "our",
-        "us",
-        "we",
         "them",
         "their",
         "other",
@@ -116,7 +111,7 @@ class Parse:
         "en",
         "er",
         "es",
-        "ing",
+        "ng",
         "ize",
         "ise",
     ]
@@ -454,14 +449,22 @@ class Parse:
     ]
     punctuation = ",.;:?!"
 
-    def __init__(self, sentence: str) -> None:
-        self.sentence = [w for w in split(r" |(?=[,.;:?!])", sentence.lower().replace("each other", "eachother").replace("no one", "noone").replace("one another", "oneanother")) if w]
-        self.out = SENTENCE()
-    
-    def add(self, WClass: NOUN | ADJ | ADV | VERB | AUX | DET | PRON | PREP | INT | CONJ | PUNC) -> None:
-        if WClass == NOUN and self.sentence[0] in self.pronouns:
-            WClass = PRON
+    substitute = {
+        r"one another": "oneanother",
+        r"each other": "eachother",
+        r"no one": "noone"
+    }
 
+    def __init__(self, sentence: str) -> None:
+        sentence = sentence.lower()
+
+        for k, v in self.substitute.items():
+            sentence = sub(k, v, sentence)
+
+        self.sentence = [w for w in split(r" |(?=[,.;:?!])", sentence) if w]
+        self.out: SENTENCE[WORDCLASS] = SENTENCE()
+    
+    def add(self, WClass: WORDCLASS) -> None:
         self.out.append(WClass(self.sentence.pop(0)))
 
     def __call__(self) -> list:
@@ -471,6 +474,9 @@ class Parse:
                     while self.sentence[0] != ",":
                         if (self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] != ",":
                             self.add(DET)
+                        
+                        elif self.sentence[0] in self.pronouns:
+                            self.add(PRON)
 
                         elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                             self.add(PREP)
@@ -535,7 +541,7 @@ class Parse:
 
                 else:
                     self.add(ADJ)
-            
+
             elif self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                 self.add(NOUN)
 
@@ -544,6 +550,8 @@ class Parse:
 
         if len([w for w in (self.sentence + self.out) if w not in self.punctuation]) == 1:
             self.add(INT)
+        elif self.sentence[0] in self.pronouns:
+            self.add(PRON)
         else:
             self.add(NOUN)
 
@@ -554,20 +562,20 @@ class Parse:
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.adjective_suffixes):
                 self.add(ADV)
 
-            elif (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+            elif (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners + self.pronouns)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                 self.add(AUX)
 
             else:
                 break
 
-        while self.sentence:
-            if self.sentence[0] in self.punctuation:
-                self.add(PUNC)
-            else:
-                break
-        
         if not self.sentence:
             return self.out
+        else:
+            while self.sentence[0] in self.punctuation:
+                self.add(PUNC)
+
+                if not self.sentence:
+                    return self.out
 
         self.add(VERB)
 
@@ -588,6 +596,9 @@ class Parse:
             if (self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation:
                 self.add(DET)
 
+            elif self.sentence[0] in self.pronouns:
+                self.add(PRON)
+
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                 self.add(PREP)
             
@@ -604,7 +615,7 @@ class Parse:
                     self.add(VERB)
 
                     if self.sentence:
-                        while self.sentence[0] == "to" and isinstance(self.out[-1]):
+                        while self.sentence[0] == "to" and isinstance(self.out[-1], VERB):
                             self.add(AUX)
 
                             if len(self.sentence) > 1:
@@ -636,6 +647,9 @@ class Parse:
                             elif (self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives) and len([w for w in self.sentence if w not in self.punctuation]) > 1:
                                 self.add(DET)
 
+                            elif self.sentence[0] in self.pronouns:
+                                self.add(PRON)
+
                             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                                 self.add(PREP)
                             
@@ -655,6 +669,9 @@ class Parse:
 
             elif (self.sentence[0] in self.determiners or self.sentence[0] in self.quantifiers_distributives) and len([w for w in self.sentence if w not in self.punctuation]) > 1:
                 self.add(DET)
+            
+            elif self.sentence[0] in self.pronouns:
+                self.add(PRON)
 
             elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
                 self.add(ADJ)
@@ -672,16 +689,37 @@ class Parse:
 
 
 if __name__ == "__main__":
+        incorrect = 0
+
+        print("\nRunning tests...")
+
         with open("tests.txt") as f:
-            for l in f.read().split("\n"):
-                p = Parse(l)
+            for l in (tests := f.read().split("\n")):
+                phrase, correct = l.split("|")
+
+                p = Parse(phrase)
+
+                flag = False
 
                 try:
-                    print("\n > ", l.strip())
-                    print("\n   ", p())
+                    print("\n > ", phrase.strip())
+                    print(end="\n    ")
+
+                    for w, c in zip(p(), correct.split()):
+                        print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
+
+                        flag = flag or w.wordclass != c != "punc"
+
+                    print()
                 except Exception as e:
                     print("\n    Error:", e)
-                    print("    Last state recorder:", p.out)
+                    print("    Last state recorded:", p.out)
+
+                    flag = True
+                
+                incorrect += flag
+
+        print(f"\nTests complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
 
         while True:
             p = Parse(input("\n >  "))

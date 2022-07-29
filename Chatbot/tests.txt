@@ -1,35 +1,39 @@
-Fortunately, this sentence parses correctly.
-Ouch!
-Oh.
-No?
-The cake is baking.
-The cook is baking.
-The cook is baking cake.
-the cook is baking a cake.
-This example illustrates several interesting features of context-free grammars.
-We have had enough.
-I like to eat grass.
-I like to eat grass on Wednesdays.
-On Mondays, strangely, I like to eat grass.
-On Mondays, I only eat grass, strangely.
-I like rain and snow.
-I like to jump and shout!
-I like to listen to music and the sounds of nature.
-On Sundays and Wednesdays, I like to eat warm tasty bread.
-When eating or drinking, my blood pressure goes up.
-Cows like to eat grass.
-I eat grass.
-I touch grass.
-I feel.
-I feel real.
-I am real.
-I'm real.
-I taste like a human.
-I am a human.
-My mother is also a human.
-My friend's dad is an alien.
-wow, this works.
-this works sometimes.
-He sleeps.
-My mum doesn't really like bread.
-At least half of these tests will succeed.
+Fortunately, this sentence parses correctly. | adv punc d n v adj punc
+Ouch! | int punc
+Oh. | int punc
+No? | int punc
+The cake is baking. | d n aux v punc
+The cook is baking. | d n aux v punc
+The cook is baking cake. | d n aux v n punc
+the cook is baking a cake. | d n aux v d n punc
+This example illustrates several interesting features of context-free grammars. | d n v d adj n pre adj n punc
+We have had enough. | pn v aux pn punc
+He had had too much to eat. | pn v aux d d pre n punc
+Cows like to eat grass. | n v aux v n punc
+I like to eat grass. | pn v aux v n punc
+I like to eat grass on Wednesdays. | pn v aux v n pre n punc
+On Mondays, strangely, I like to eat grass. | pre n punc adv punc pn v aux v punc
+On Mondays, I only eat grass, strangely. | pre n punc pn adv v n punc adv punc
+I like rain and snow. | pn v n conj n punc
+I like to jump and shout! | pn v aux v conj v punc
+I like to listen to music and the sounds of nature. | pn v aux v pre n conj d n pre n punc
+On Sundays and Wednesdays, I like to eat warm tasty bread. | pre n conj n punc pn v aux v adj adj n punc
+When eating or drinking, my blood-pressure goes up. | pre v conj v punc pn n v adv punc
+I eat grass. | pn v n punc
+I touch grass. | pn v n punc
+I feel. | pn v punc
+I feel real. | pn v adj punc
+I am real. | pn v adj punc
+I'm real. | pn adj punc
+I taste like a human. | pn v pre d n punc
+I am a human. | pn v d n punc
+My mother is also a human. | d n v adv d n punc
+My friend's dad is an alien. | d n n v d n punc
+wow, this works. | int punc pn v punc
+this works sometimes. | pn v adj punc
+He sleeps. | pn v punc
+My mum doesn't really like bread. | d n aux adv v n punc
+At least half of these tests will succeed. | d d d pre d n aux v punc
+His cats hate each other. | d n v pn punc
+That car is his. | d n v pn punc
+That car belongs to him. | d n v aux pn punc
