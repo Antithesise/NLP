@@ -95,16 +95,22 @@ class Parse:
     ]
     adjective_suffixes = [
         "able",
-        "ible",
         "al",
+        "ant",
+        "ary",
+        "ent",
+        "free",
         "ful",
+        "full",
         "ian",
+        "ible",
+        "ile",
+        "ish",
         "ive",
         "less",
         "like",
-        "ly",
         "ous",
-        "free",
+        "y",
     ]
     verb_suffixes = [
         "ed",
@@ -614,7 +620,7 @@ class Parse:
             elif self.sentence[0] in self.conjunctions:
                 self.add(CONJ)
 
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes):
+            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and self.out[-1] not in self.determiners:
                 if (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
@@ -634,7 +640,7 @@ class Parse:
                 else:
                     self.add(ADJ)
 
-            elif (any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.verb_suffixes) and self.sentence[0] not in (self.quantifiers_distributives + self.determiners)) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")):
+            elif (any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.verb_suffixes) and self.sentence[0] not in (self.quantifiers_distributives + self.determiners)) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners:
                 self.add(ADJ)
 
             else:
@@ -731,7 +737,7 @@ if __name__ == "__main__":
                 
                 incorrect += flag
 
-        print(f"\nTests complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
+        print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
 
         while True:
             p = Parse(input("\n >  "))
