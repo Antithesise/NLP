@@ -712,7 +712,7 @@ if __name__ == "__main__":
         print("\nRunning tests...")
 
         with open("tests.txt") as f:
-            for l in (tests := f.read().split("\n")):
+            for l in (tests := f.read().strip().split("\n")):
                 phrase, correct = l.split("|")
 
                 p = Parse(phrase)
