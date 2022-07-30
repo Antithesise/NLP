@@ -110,8 +110,9 @@ class Parse:
         "y",
     ]
     auxiliary_verbs = [
+        "to",
         "will",
-        "to"
+        "would"
     ]
     verb_suffixes = [
         "ed",

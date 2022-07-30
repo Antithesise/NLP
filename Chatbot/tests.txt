@@ -37,6 +37,7 @@ At least half of these tests will succeed. | d d d pre d n aux v punc
 His cats hate each other. | d n v pn punc
 That car is his. | d n v pn punc
 That car belongs to him. | d n v aux pn punc
+He had too much to eat. | pn v adv d pre n punc
 He too, had too much to eat. | pn adv punc v adv d pre n punc
 I am John. | pn v n punc
 I am smart. | pn v adj punc
@@ -48,3 +49,5 @@ I had walked. | pn aux v punc
 I will have walked. | pn aux aux v punc
 Is this a question? | v pn d n punc
 That smiling guy is called Thomas. | d adj n aux v n punc
+He will have had food. | pn aux aux v n punc
+You would have had to have seen it. | pn aux aux v pre aux v pn punc
