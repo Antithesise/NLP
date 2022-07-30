@@ -716,43 +716,43 @@ class Parse:
 
 
 if __name__ == "__main__":
-        incorrect = 0
+    incorrect = 0
 
-        print("\nRunning tests...")
+    print("\nRunning tests...")
 
-        with open("tests.txt") as f:
-            for l in (tests := f.read().strip().split("\n")):
-                phrase, correct = l.split("|")
+    with open("tests.txt") as f:
+        for l in (tests := f.read().strip().split("\n")):
+            phrase, correct = l.split("|")
 
-                p = Parse(phrase)
+            p = Parse(phrase)
 
-                flag = False
-
-                try:
-                    print("\n > ", phrase.strip())
-                    print(end="\n    ")
-
-                    for w, c in zip(p(), correct.split()):
-                        print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
-
-                        flag = flag or w.wordclass != c
-
-                    print()
-                except Exception as e:
-                    print("\n    Error:", e)
-                    print("    Last state recorded:", p.out)
-
-                    flag = True
-                
-                incorrect += flag
-
-        print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
-
-        while True:
-            p = Parse(input("\n >  "))
+            flag = False
 
             try:
-                print("\n   \x1b[33m", p(), end="\x1b[0m\n")
+                print("\n > ", phrase.strip())
+                print(end="\n    ")
+
+                for w, c in zip(p(), correct.split()):
+                    print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
+
+                    flag = flag or w.wordclass != c
+
+                print()
             except Exception as e:
-                print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
+                print("\n    Error:", e)
                 print("    Last state recorded:", p.out)
+
+                flag = True
+            
+            incorrect += flag
+
+    print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
+
+    while True:
+        p = Parse(input("\n >  "))
+
+        try:
+            print("\n   \x1b[33m", p(), end="\x1b[0m\n")
+        except Exception as e:
+            print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
+            print("    Last state recorded:", p.out)
