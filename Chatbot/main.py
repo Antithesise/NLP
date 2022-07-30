@@ -101,6 +101,7 @@ class Parse:
         "full",
         "ian",
         "ible",
+        "ican",
         "ile",
         "ish",
         "ive",
@@ -354,6 +355,102 @@ class Parse:
         "with",
         "within",
         "without"]
+    adjectives = [
+        "able",
+        "available",
+        "bad",
+        "best",
+        "better",
+        "big",
+        "black",
+        "blue",
+        "central",
+        "certain",
+        "clear",
+        "cold",
+        "common",
+        "cultural"
+        "current",
+        "dark",
+        "dead",
+        "democratic",
+        "different",
+        "difficult",
+        "early",
+        "easy",
+        "economic",
+        "entire",
+        "environmental",
+        "federal",
+        "final",
+        "financial",
+        "fine",
+        "foreign",
+        "free",
+        "full",
+        "general",
+        "good",
+        "great",
+        "green",
+        "happy",
+        "hard",
+        "high",
+        "hot",
+        "huge",
+        "important",
+        "international",
+        "large",
+        "late",
+        "left",
+        "legal",
+        "likely",
+        "little",
+        "local",
+        "long",
+        "low",
+        "main",
+        "major",
+        "medical",
+        "national",
+        "natural",
+        "new",
+        "nice",
+        "old",
+        "only",
+        "other",
+        "past",
+        "personal",
+        "physical",
+        "political",
+        "poor",
+        "popular",
+        "possible",
+        "private",
+        "ready",
+        "real",
+        "recent",
+        "red",
+        "religious",
+        "right",
+        "serious",
+        "short",
+        "significant",
+        "similar",
+        "simple",
+        "single",
+        "small",
+        "smart",
+        "social",
+        "special",
+        "strong",
+        "sure",
+        "traditional",
+        "true",
+        "various",
+        "white",
+        "whole",
+        "young",
+    ]
     pronouns = [
         "all",
         "another",
@@ -533,6 +630,9 @@ class Parse:
                         elif self.sentence[0] in self.conjunctions:
                             self.add(CONJ)
                         
+                        elif self.sentence[0] in self.adjectives:
+                            self.add(ADJ)
+                        
                         elif self.sentence[1] in self.punctuation + self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                             self.add(NOUN)
 
@@ -597,6 +697,9 @@ class Parse:
                 else:
                     self.add(ADJ)
 
+            elif self.sentence[0] in self.adjectives:
+                self.add(ADJ)
+
             elif self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                 self.add(NOUN)
 
@@ -637,7 +740,7 @@ class Parse:
 
         self.add(VERB)
 
-        if self.sentence[0] in self.adverbs:
+        if self.sentence[0] in self.adverbs or self.sentence[0].endswith("ly"):
             self.add(ADV)
 
         if self.sentence:
@@ -695,7 +798,7 @@ class Parse:
                 else:
                     self.add(ADJ)
 
-            elif ((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not isinstance(self.out[-1], VERB):
+            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not isinstance(self.out[-1], VERB)) or self.sentence[0] in self.adjectives:
                 self.add(ADJ)
 
             else:
@@ -728,6 +831,9 @@ class Parse:
                             
                             elif self.sentence[0] in self.conjunctions:
                                 self.add(CONJ)
+                            
+                            elif self.sentence[0] in self.adjectives:
+                                self.add(ADJ)
                             
                             elif self.sentence[1] in self.punctuation + self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                                 self.add(NOUN)
@@ -763,6 +869,9 @@ class Parse:
 
             elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not isinstance(self.out[-1], ADJ) and self.out[-1] not in self.quantifiers_distributives + self.determiners) or isinstance(self.out[-1], AUX):
                 self.add(VERB)
+            
+            elif self.sentence[0] in self.adjectives:
+                self.add(ADJ)
 
             else:
                 if len(self.sentence) > 1:

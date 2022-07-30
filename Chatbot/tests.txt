@@ -1,4 +1,4 @@
-Fortunately, this sentence parses correctly. | adv punc d n v adj punc
+Fortunately, this sentence parses correctly. | adv punc d n v adv punc
 Ouch! | int punc
 Oh. | int punc
 No? | int punc
