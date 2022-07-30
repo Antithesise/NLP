@@ -5,10 +5,10 @@ class SENTENCE(list):
     def __repr__(self) -> str:
         return " ".join([repr(w) for w in self.copy()])
 class WORDCLASS(str):
-    wordclass: str
+    wordclass: str = ""
 
     def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + f" ({self.wordclass})"
+        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + f" ({self.wordclass})" * (self.wordclass and self.wordclass != "punc")
 class NOUN(WORDCLASS):
     wordclass = "n"
 class ADJ(WORDCLASS):
@@ -31,9 +31,6 @@ class CONJ(WORDCLASS):
     wordclass = "conj"
 class PUNC(WORDCLASS):
     wordclass = "punc"
-
-    def __repr__(self) -> str:
-        return self
 
 
 class Parse:
@@ -111,6 +108,10 @@ class Parse:
         "like",
         "ous",
         "y",
+    ]
+    auxiliary_verbs = [
+        "will",
+        "to"
     ]
     verb_suffixes = [
         "ed",
@@ -453,6 +454,10 @@ class Parse:
         "yourself",
         "yourselves"
     ]
+    adverbs = [
+        "also",
+        "too"
+    ]
     punctuation = ",.;:?!"
 
     substitute = {
@@ -484,7 +489,7 @@ class Parse:
                         elif self.sentence[0] in self.pronouns:
                             self.add(PRON)
                         
-                        elif self.sentence[0] in ["also", "too"]:
+                        elif self.sentence[0] in self.adverbs:
                             self.add(ADV)
 
                         elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
@@ -505,17 +510,17 @@ class Parse:
                 self.add(PUNC)
 
             if (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
-                while (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                while (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
                     self.add(AUX)
 
                 self.add(VERB)
 
                 if self.sentence:
-                    while self.sentence[0] == "to" and isinstance(self.out[-1]):
+                    while self.sentence[0] in self.auxiliary_verbs and isinstance(self.out[-1]):
                         self.add(AUX)
 
                         if len(self.sentence) > 1:
-                            if self.sentence[1] == "to":
+                            if self.sentence[1] in self.auxiliary_verbs:
                                 self.add(VERB)
 
         while len([w for w in self.sentence if w not in self.punctuation]) > 1:
@@ -525,7 +530,7 @@ class Parse:
             elif (self.sentence[0] in (self.determiners + self.quantifiers_distributives) or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation:
                 self.add(DET)
             
-            elif self.sentence[0] in ["also", "too"]:
+            elif self.sentence[0] in self.adverbs:
                 self.add(ADV)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
@@ -538,17 +543,17 @@ class Parse:
                 if (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
-                    while (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                    while (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
                         self.add(AUX)
 
                     self.add(VERB)
 
                     if self.sentence:
-                        while self.sentence[0] == "to" and isinstance(self.out[-1]):
+                        while self.sentence[0] in self.auxiliary_verbs and isinstance(self.out[-1]):
                             self.add(AUX)
 
                             if len(self.sentence) > 1:
-                                if self.sentence[1] == "to":
+                                if self.sentence[1] in self.auxiliary_verbs:
                                     self.add(VERB)
 
                 else:
@@ -571,10 +576,10 @@ class Parse:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.adjective_suffixes) or self.sentence[0] in ["also", "too"]:
+            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in (self.quantifiers_distributives + self.determiners) for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
                 self.add(ADV)
 
-            elif (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners + self.pronouns)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+            elif (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners + self.pronouns)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
                 self.add(AUX)
 
             else:
@@ -591,18 +596,18 @@ class Parse:
 
         self.add(VERB)
 
-        if self.sentence[0] in ["also", "too"]:
+        if self.sentence[0] in self.adverbs:
             self.add(ADV)
 
         if self.sentence:
-            while self.sentence[0] == "to" and isinstance(self.out[-1], VERB):
+            while self.sentence[0] in self.auxiliary_verbs and isinstance(self.out[-1], VERB):
                 self.add(AUX)
 
                 if self.sentence:
                     if all([any(w.endswith(s) for s in self.verb_suffixes) for w in self.sentence if w not in self.punctuation]):
                         self.add(VERB)
                     elif len(self.sentence) > 1:
-                        if self.sentence[1] == "to":
+                        if self.sentence[1] in self.auxiliary_verbs:
                             self.add(VERB)
                 else:
                     return self.out
@@ -624,7 +629,7 @@ class Parse:
                 if (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
-                    while (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                    while (any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.verb_suffixes) and self.sentence[1] not in (self.quantifiers_distributives + self.determiners)) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
                         self.add(AUX)
 
                         if len(self.sentence) == 1:
@@ -633,11 +638,11 @@ class Parse:
                     self.add(VERB)
 
                     if self.sentence:
-                        while self.sentence[0] == "to" and isinstance(self.out[-1], VERB):
+                        while self.sentence[0] in self.auxiliary_verbs and isinstance(self.out[-1], VERB):
                             self.add(AUX)
 
                             if len(self.sentence) > 1:
-                                if self.sentence[1] == "to":
+                                if self.sentence[1] in self.auxiliary_verbs:
                                     self.add(VERB)
 
                 else:
@@ -691,7 +696,7 @@ class Parse:
             elif self.sentence[0] in self.pronouns:
                 self.add(PRON)
 
-            elif self.sentence[0] in ["also", "too"]:
+            elif self.sentence[0] in self.adverbs:
                 self.add(ADV)
 
             elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
