@@ -740,6 +740,9 @@ class Parse:
 
         self.add(VERB)
 
+        if not self.sentence:
+            return self.out
+
         if self.sentence[0] in self.adverbs or self.sentence[0].endswith("ly"):
             self.add(ADV)
 
