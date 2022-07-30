@@ -110,7 +110,28 @@ class Parse:
         "y",
     ]
     auxiliary_verbs = [
-        "to",
+        "am",
+        "are",
+        "be",
+        "being",
+        "can",
+        "could",
+        "did",
+        "do",
+        "does",
+        "doing",
+        "had",
+        "has",
+        "have",
+        "having",
+        "is",
+        "may",
+        "might",
+        "must",
+        "shall",
+        "should",
+        "was",
+        "were",
         "will",
         "would"
     ]
@@ -496,11 +517,11 @@ class Parse:
                         elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners + self.prepositions:
                             self.add(VERB)
                             
-                            while self.sentence[0] in self.auxiliary_verbs:
+                            while self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                                 self.add(AUX)
 
                                 if len(self.sentence) > 1:
-                                    if self.sentence[1] in self.auxiliary_verbs:
+                                    if self.sentence[1] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                                         self.add(VERB)
                         
                         elif self.sentence[0] in self.adverbs:
@@ -523,18 +544,18 @@ class Parse:
                 
                 self.add(PUNC)
 
-            if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
-                while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
+            if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0].endswith("n't"):
+                while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                     self.add(AUX)
 
                 self.add(VERB)
 
                 if self.sentence:
-                    while self.sentence[0] in self.auxiliary_verbs and isinstance(self.out[-1]):
+                    while self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                         self.add(AUX)
 
                         if len(self.sentence) > 1:
-                            if self.sentence[1] in self.auxiliary_verbs:
+                            if self.sentence[1] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                                 self.add(VERB)
 
         while len([w for w in self.sentence if w not in self.punctuation]) > 2:
@@ -560,17 +581,17 @@ class Parse:
                 if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
-                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
+                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                         self.add(AUX)
 
                     self.add(VERB)
 
                     if self.sentence:
-                        while self.sentence[0] in self.auxiliary_verbs:
+                        while self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                             self.add(AUX)
 
                             if len(self.sentence) > 1:
-                                if self.sentence[1] in self.auxiliary_verbs:
+                                if self.sentence[1] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                                     self.add(VERB)
 
                 else:
@@ -596,8 +617,11 @@ class Parse:
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
                 self.add(ADV)
 
-            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "had"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
-                self.add(AUX)
+            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "had"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
+                if self.sentence[0] in self.auxiliary_verbs or self.sentence[0].endswith("n't"):
+                    self.add(AUX)
+                else:
+                    self.add(VERB)
 
             else:
                 break
@@ -617,14 +641,14 @@ class Parse:
             self.add(ADV)
 
         if self.sentence:
-            while self.sentence[0] in self.auxiliary_verbs and isinstance(self.out[-1], VERB):
+            while self.sentence[0] in ["to", "will", "would"] and isinstance(self.out[-1], VERB):
                 self.add(AUX)
 
                 if self.sentence:
                     if self.out[-1] == "to" and self.sentence[0] not in self.punctuation + self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns:
                         self.add(VERB)
                     elif len(self.sentence) > 1:
-                        if self.sentence[1] in self.auxiliary_verbs:
+                        if self.sentence[1] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                             self.add(VERB)
                 else:
                     return self.out
@@ -652,7 +676,7 @@ class Parse:
                 if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
-                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.auxiliary_verbs:
+                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                         self.add(AUX)
 
                         if len(self.sentence) == 1:
@@ -661,11 +685,11 @@ class Parse:
                     self.add(VERB)
 
                     if self.sentence:
-                        while self.sentence[0] in self.auxiliary_verbs:
+                        while self.sentence[0] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                             self.add(AUX)
 
                             if len(self.sentence) > 1:
-                                if self.sentence[1] in self.auxiliary_verbs:
+                                if self.sentence[1] in ["to", "will", "would"] or self.sentence[0].endswith("n't"):
                                     self.add(VERB)
 
                 else:
@@ -737,7 +761,7 @@ class Parse:
             elif self.sentence[0] in self.conjunctions:
                 self.add(CONJ)
 
-            elif any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not isinstance(self.out[-1], ADJ) and self.out[-1] not in self.quantifiers_distributives + self.determiners:
+            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not isinstance(self.out[-1], ADJ) and self.out[-1] not in self.quantifiers_distributives + self.determiners) or isinstance(self.out[-1], AUX):
                 self.add(VERB)
 
             else:
