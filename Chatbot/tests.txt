@@ -61,3 +61,5 @@ They are. | pn v punc
 She had had trouble eating. | pn aux v n v punc
 He has had trouble sleeping. | pn aux v n v punc
 I have had a bad night. | pn aux v d adj n punc
+I should go. | pn aux v punc
+I should be going. | pn aux aux v punc
