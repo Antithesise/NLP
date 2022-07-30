@@ -40,9 +40,11 @@ That car belongs to him. | d n v aux pn punc
 He too, had too much to eat. | pn adv punc v adv d pre n punc
 I am John. | pn v n punc
 I am smart. | pn v adj punc
-I am walking. | pn aux v punc.
-I was walking. | pn aux v punc.
-I will walk. | pn aux v punc.
-I have walked. | pn aux v punc.
-I had walked. | pn aux v punc.
-I will have walked. | pn aux aux v punc.
+I am walking. | pn aux v punc
+I was walking. | pn aux v punc
+I will walk. | pn aux v punc
+I have walked. | pn aux v punc
+I had walked. | pn aux v punc
+I will have walked. | pn aux aux v punc
+Is this a question? | v pn d n punc
+That smiling guy is called Thomas. | d adj n aux v n punc

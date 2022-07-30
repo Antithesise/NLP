@@ -734,7 +734,7 @@ if __name__ == "__main__":
                     for w, c in zip(p(), correct.split()):
                         print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
 
-                        flag = flag or w.wordclass != c != "punc"
+                        flag = flag or w.wordclass != c
 
                     print()
                 except Exception as e:
@@ -751,7 +751,7 @@ if __name__ == "__main__":
             p = Parse(input("\n >  "))
 
             try:
-                print("\n   ", p())
+                print("\n   \x1b[33m", p(), end="\x1b[0m\n")
             except Exception as e:
-                print("\n    Error:", e)
+                print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
                 print("    Last state recorded:", p.out)
