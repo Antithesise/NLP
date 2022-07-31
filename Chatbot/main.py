@@ -916,7 +916,7 @@ if __name__ == "__main__":
                 print()
             except Exception as e:
                 print("\n    Error:", e)
-                print("    Last state recorded:", p.out)
+                print("    Last state recorded:", parse.out)
 
                 flag = True
             
