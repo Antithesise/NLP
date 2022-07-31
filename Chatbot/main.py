@@ -911,7 +911,7 @@ if __name__ == "__main__":
                 for w, c in zip(parse(phrase), correct.split()):
                     print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
 
-                    flag = flag or w.wordclass != c
+                    flag |= w.wordclass != c
 
                 print()
             except Exception as e:
