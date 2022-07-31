@@ -1,14 +1,12 @@
 from re import split, sub
 
 
-class SENTENCE(list):
-    def __repr__(self) -> str:
-        return " ".join([repr(w) for w in self.copy()])
 class WORDCLASS(str):
     wordclass: str = ""
 
     def __repr__(self) -> str:
         return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + f" ({self.wordclass})" * (self.wordclass and self.wordclass != "punc")
+
 class NOUN(WORDCLASS):
     wordclass = "n"
 class ADJ(WORDCLASS):
@@ -32,8 +30,12 @@ class CONJ(WORDCLASS):
 class PUNC(WORDCLASS):
     wordclass = "punc"
 
+class SENTENCE(list[WORDCLASS]):
+    def __repr__(self) -> str:
+        return " ".join([repr(w) for w in self.copy()])
 
-class Parse:
+
+class Parser:
     determiners = [
         "the",
         "a",
@@ -587,20 +589,19 @@ class Parse:
         r"each other": "eachother",
         r"no one": "noone"
     }
+    
+    def add(self, WClass: WORDCLASS) -> None:
+        self.out.append(WClass(self.sentence.pop(0)))
 
-    def __init__(self, sentence: str) -> None:
+    def __call__(self, sentence: str) -> SENTENCE:
         sentence = sentence.lower()
 
         for k, v in self.substitute.items():
             sentence = sub(k, v, sentence)
 
         self.sentence = [w for w in split(r" |(?=[,.;:?!])", sentence) if w]
-        self.out: SENTENCE[WORDCLASS] = SENTENCE()
-    
-    def add(self, WClass: WORDCLASS) -> None:
-        self.out.append(WClass(self.sentence.pop(0)))
+        self.out = SENTENCE()
 
-    def __call__(self) -> list:
         if "," in self.sentence:
             while (any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards")) and self.sentence[0] not in self.pronouns + self.determiners + self.quantifiers_distributives:
                 if self.sentence[1] != ",":
@@ -892,23 +893,22 @@ class Parse:
 
 
 if __name__ == "__main__":
-    incorrect = 0
+    parse = Parser()
 
     print("\nRunning tests...")
 
     with open("tests.txt") as f:
+        incorrect = 0
+
         for l in (tests := f.read().strip().split("\n")):
             phrase, correct = l.split("|")
-
-            p = Parse(phrase)
-
             flag = False
 
             try:
                 print("\n > ", phrase.strip())
                 print(end="\n    ")
 
-                for w, c in zip(p(), correct.split()):
+                for w, c in zip(parse(phrase), correct.split()):
                     print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
 
                     flag = flag or w.wordclass != c
@@ -925,10 +925,8 @@ if __name__ == "__main__":
     print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
 
     while True:
-        p = Parse(input("\n >  "))
-
         try:
-            print("\n   \x1b[33m", p(), end="\x1b[0m\n")
+            print("\n   \x1b[33m", parse(input("\n >  ")), end="\x1b[0m\n")
         except Exception as e:
             print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
-            print("    Last state recorded:", p.out)
+            print("    Last state recorded:", parse.out)
