@@ -53,7 +53,7 @@ I will have walked. | pn aux aux v punc
 Is this a question? | v pn d n punc
 That smiling guy is called Thomas. | d adj n aux v n punc
 He will have had food. | pn aux aux v n punc
-You would have had to have viewed it. | pn aux aux v aux v v pn punc
+You would have had to have viewed it. | pn aux aux aux v aux v pn punc
 She lives up the road. | pn v pre d n punc
 I am. | pn v punc
 She is. | pn v punc
