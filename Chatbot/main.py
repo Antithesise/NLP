@@ -624,7 +624,7 @@ class Parser:
                         elif self.sentence[0] in self.pronouns:
                             self.add(PRON)
                         
-                        elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners + self.prepositions:
+                        elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[0] not in self.quantifiers_distributives + self.determiners + self.prepositions:
                             self.add(VERB)
                             
                             while self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
@@ -657,8 +657,8 @@ class Parser:
                 
                 self.add(PUNC)
 
-            if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0].endswith("n't"):
-                while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+            if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0].endswith("n't"):
+                while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                     self.add(AUX)
 
                 self.add(VERB)
@@ -699,10 +699,10 @@ class Parser:
                 self.add(CONJ)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and any(w.wordclass == "n" for w in self.out):
-                if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
-                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                         self.add(AUX)
 
                     self.add(VERB)
@@ -741,7 +741,7 @@ class Parser:
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
                 self.add(ADV)
 
-            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "had"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                 if self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs or self.sentence[0].endswith("n't"):
                     self.add(AUX)
                 else:
@@ -804,10 +804,10 @@ class Parser:
                 self.add(CONJ)
 
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and self.out[-1] not in self.determiners:
-                if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
-                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                         self.add(AUX)
 
                         if len(self.sentence) == 1:
@@ -826,7 +826,7 @@ class Parser:
                 else:
                     self.add(ADJ)
 
-            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v") or self.sentence[0] in self.adjectives:
+            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] in ["is", "are"]) and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v") or self.sentence[0] in self.adjectives:
                 self.add(ADJ)
 
             else:

@@ -6,6 +6,7 @@ The cake is baking. | d n aux v punc
 The cook is baking. | d n aux v punc
 The cook is baking cake. | d n aux v n punc
 The cook is baking a cake. | d n aux v d n punc
+The cooks are baking a cake. | d n aux v d n punc
 This example illustrates several interesting features of context-free grammars. | d n v d adj n pre adj n punc
 We have had enough. | pn aux v pn punc
 Cows like to eat grass. | n v aux v n punc
