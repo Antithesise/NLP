@@ -609,7 +609,7 @@ class Parser:
         r"each other": "eachother",
         r"no one": "noone"
     }
-    
+
     def add(self, WClass: WORDCLASS) -> None:
         self.out.append(WClass(self.sentence.pop(0)))
 
@@ -663,7 +663,7 @@ class Parser:
 
                         else:
                             self.add(ADJ)
-                            
+
                 else:
                     self.add(ADV)
                 
@@ -893,13 +893,13 @@ class Parser:
 
                             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                                 self.add(PREP)
-                            
+
                             elif self.sentence[0] in self.conjunctions:
                                 self.add(CONJ)
-                            
+
                             elif self.sentence[0] in self.adjectives:
                                 self.add(ADJ)
-                            
+
                             elif self.sentence[1] in self.punctuation + self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                                 self.add(NOUN)
 
@@ -927,7 +927,7 @@ class Parser:
 
                 if self.sentence[0].endswith("ing"):
                     self.add(ADJ)
-            
+
             elif self.sentence[0] in self.pronouns:
                 if self.sentence[0] in self.questions:
                     self.question = True
@@ -942,13 +942,13 @@ class Parser:
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                 self.add(PREP)
-            
+
             elif self.sentence[0] in self.conjunctions:
                 self.add(CONJ)
 
             elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass == "aux":
                 self.add(VERB)
-            
+
             elif self.sentence[0] in self.adjectives:
                 self.add(ADJ)
 
@@ -997,7 +997,7 @@ if __name__ == "__main__":
                 print("    Last state recorded:", parse.out)
 
                 flag = True
-            
+
             incorrect += flag
 
     print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
