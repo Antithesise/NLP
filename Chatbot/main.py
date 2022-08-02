@@ -623,6 +623,9 @@ class Parser:
         self.sentence = [w for w in split(r" |(\.\.\.)|(?=[,.;:?!])", sentence) if w]
         self.out = SENTENCE()
 
+        if not self.sentence:
+            return self.out
+
         if "," in self.sentence:
             while ((any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards")) and self.sentence[0] not in self.pronouns + self.determiners + self.quantifiers_distributives) and "," in self.sentence:
                 if self.sentence[1] != ",":
@@ -757,6 +760,8 @@ class Parser:
 
         if len([w for w in (self.sentence + self.out) if w not in self.punctuation]) == 1:
             self.add(INT)
+        elif self.sentence[0] in self.punctuation:
+            self.add(PUNC)
         elif self.sentence[0] in self.pronouns:
             self.add(PRON)
         else:
@@ -1000,7 +1005,7 @@ if __name__ == "__main__":
 
             incorrect += flag
 
-    print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode...")
+    print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode. Press Ctrl+C to exit...")
 
     while True:
         try:
@@ -1008,8 +1013,18 @@ if __name__ == "__main__":
 
             if parse.question:
                 print("(Q)")
-            else:
+            elif parse.out:
                 print("(S)")
+
+        except KeyboardInterrupt:
+            print("\x1b[0m\x1b[2K\rExiting...\n")
+
+            break
+
+        except EOFError:
+            print("\x1b[0m\x1b[2K\rExiting...\n")
+
+            break
 
         except Exception as e:
             print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
