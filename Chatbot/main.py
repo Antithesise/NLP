@@ -1,5 +1,4 @@
 from re import split, sub
-from string import punctuation
 
 
 class WORDCLASS(str):
@@ -915,7 +914,7 @@ class Parser:
                             if len(self.sentence) < 2:
                                 break
 
-                while self.sentence[0] in punctuation:
+                while self.sentence[0] in self.punctuation:
                     self.add(PUNC)
 
                     if not self.sentence:
