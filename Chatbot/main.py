@@ -37,35 +37,6 @@ class SENTENCE(list[WORDCLASS]):
 
 
 class Parser:
-    determiners = [
-        "the",
-        "a",
-        "an",
-        "this",
-        "that",
-        "these",
-        "those",
-        "my",
-        "your",
-        "his",
-        "her",
-        "its",
-        "our",
-        "them",
-        "their",
-        "other",
-        "another",
-        "such",
-        "what",
-        "whatever",
-        "which",
-        "whichever",
-        "rather",
-        "quite",
-        "last",
-        "next",
-        "certain",
-    ]
     quantifiers_distributives = [
         "few",
         "fewer",
@@ -153,6 +124,7 @@ class Parser:
     ]
     conjunctions = [
         "and",
+        "as",
         "but",
         "for",
         "nor",
@@ -361,6 +333,35 @@ class Parser:
         "with",
         "within",
         "without"]
+    determiners = [
+        "the",
+        "a",
+        "an",
+        "this",
+        "that",
+        "these",
+        "those",
+        "my",
+        "your",
+        "his",
+        "her",
+        "its",
+        "our",
+        "them",
+        "their",
+        "other",
+        "another",
+        "such",
+        "what",
+        "whatever",
+        "which",
+        "whichever",
+        "rather",
+        "quite",
+        "last",
+        "next",
+        "certain",
+    ]
     adjectives = [
         "able",
         "available",
@@ -593,7 +594,15 @@ class Parser:
         "also",
         "too"
     ]
-    punctuation = list(",.;:?!")
+    punctuation = [
+        ",",
+        ".",
+        ";",
+        ":",
+        "?",
+        "!",
+        "..."
+    ]
 
     substitute = {
         r"one another": "oneanother",
@@ -611,7 +620,7 @@ class Parser:
         for k, v in self.substitute.items():
             sentence = sub(k, v, sentence)
 
-        self.sentence = [w for w in split(r" |(?=[,.;:?!])", sentence) if w]
+        self.sentence = [w for w in split(r" |(\.\.\.)|(?=[,.;:?!])", sentence) if w]
         self.out = SENTENCE()
 
         if "," in self.sentence:
@@ -686,8 +695,11 @@ class Parser:
 
             self.question = True
         
-        while self.sentence[0] in self.primary_auxiliary_verbs:
-            self.add(AUX)
+            while self.sentence[0] in self.primary_auxiliary_verbs:
+                self.add(AUX)
+        
+        if self.sentence[0] in self.conjunctions:
+            self.add(CONJ)
 
         while len([w for w in self.sentence if w not in self.punctuation]) > 2:
             if self.sentence[0] in self.punctuation:

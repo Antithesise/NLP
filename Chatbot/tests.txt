@@ -65,6 +65,7 @@ I should go. | pn aux v punc
 I should be going. | pn aux aux v punc
 I shouldn't do this. | pn aux v pn punc
 That is a cat. | pn v d n punc
+As I was saying ... | conj pn aux v punc
 Is this a question? | v pn d n punc
 Can I call you James? | v pn v pn n punc
 Will this work? | v pn v punc
