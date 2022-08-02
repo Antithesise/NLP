@@ -64,3 +64,4 @@ I have had a bad night. | pn aux v d adj n punc
 I should go. | pn aux v punc
 I should be going. | pn aux aux v punc
 I shouldn't do this. | pn aux v pn punc
+That is a cat. | pn v d n punc

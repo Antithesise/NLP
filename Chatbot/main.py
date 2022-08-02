@@ -666,7 +666,7 @@ class Parser:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
-            elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation:
+            elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
                 self.add(DET)
 
                 if self.sentence[0].endswith("ing"):
@@ -764,7 +764,7 @@ class Parser:
                     return self.out
 
         while len(self.sentence) > 1:
-            if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation:
+            if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
                 self.add(DET)
 
                 if self.sentence[0].endswith("ing"):
@@ -821,7 +821,7 @@ class Parser:
                 if len(self.sentence) > 1:
                     if self.sentence[1] not in self.punctuation:
                         while self.sentence[0] not in self.punctuation:
-                            if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation:
+                            if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
                                 self.add(DET)
 
                             elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
