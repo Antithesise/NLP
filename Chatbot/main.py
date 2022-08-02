@@ -1,4 +1,5 @@
 from re import split, sub
+from string import punctuation
 
 
 class WORDCLASS(str):
@@ -462,6 +463,8 @@ class Parser:
         "when",
         "where",
         "who",
+        "whom",
+        "whose",
         "why"
     ]
     pronouns = [
@@ -612,7 +615,7 @@ class Parser:
         self.out = SENTENCE()
 
         if "," in self.sentence:
-            while (any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards")) and self.sentence[0] not in self.pronouns + self.determiners + self.quantifiers_distributives:
+            while ((any(self.sentence[0].endswith(s) for s in self.adjective_suffixes) or self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards")) and self.sentence[0] not in self.pronouns + self.determiners + self.quantifiers_distributives) and "," in self.sentence:
                 if self.sentence[1] != ",":
                     while self.sentence[0] != ",":
                         if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] != ",":
@@ -671,8 +674,15 @@ class Parser:
                             if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                                 self.add(VERB)
 
-        if self.sentence[0] in self.primary_auxiliary_verbs + self.questions:
-            self.add(VERB)
+        if self.sentence[0] in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs + self.questions or self.sentence[0].endswith("n't"):
+            if self.sentence[0] == "whose":
+                self.add(DET)
+            elif self.sentence[0] in self.pronouns:
+                self.add(PRON)
+            elif self.out:
+                self.add(AUX)
+            else:
+                self.add(VERB)
 
             self.question = True
         
@@ -684,7 +694,13 @@ class Parser:
                 self.add(PUNC)
 
             elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
-                self.add(DET)
+                if len(self.sentence) > 2:
+                    if self.sentence[2] == "to" or self.question:
+                        break
+                    else:
+                        self.add(DET)
+                else:
+                    self.add(DET)
 
                 if self.sentence[0].endswith("ing"):
                     self.add(ADJ)
@@ -734,7 +750,7 @@ class Parser:
         else:
             self.add(NOUN)
 
-        while len(self.sentence) > 1:
+        while len(self.sentence) > 1 and not self.question:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
@@ -762,7 +778,10 @@ class Parser:
                 if not self.sentence:
                     return self.out
 
-        if not self.question:
+        if self.question:
+            if self.out[0] not in ["am", "are", "be", "being", "is"]:
+                self.add(VERB)
+        else:
             self.add(VERB)
 
         if not self.sentence:
@@ -792,10 +811,13 @@ class Parser:
                     self.add(ADJ)
 
             elif self.sentence[0] in self.pronouns:
+                if self.sentence[0] in self.questions:
+                    self.question = True
+
                 self.add(PRON)
 
             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                if self.sentence[1] in self.punctuation:
+                if self.sentence[1] in self.punctuation and not self.question:
                     self.add(ADV)
                 else:
                     self.add(PREP)
@@ -826,7 +848,7 @@ class Parser:
                 else:
                     self.add(ADJ)
 
-            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] in ["is", "are"]) and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v") or self.sentence[0] in self.adjectives:
+            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] in ["is", "are"]) and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v" and not self.question) or self.sentence[0] in self.adjectives:
                 self.add(ADJ)
 
             else:
@@ -852,6 +874,9 @@ class Parser:
                                     self.add(ADJ)
 
                             elif self.sentence[0] in self.pronouns:
+                                if self.sentence[0] in self.questions:
+                                    self.question = True
+                                
                                 self.add(PRON)
 
                             elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
@@ -866,11 +891,22 @@ class Parser:
                             elif self.sentence[1] in self.punctuation + self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                                 self.add(NOUN)
 
+                            elif self.sentence[0].endswith("n't"):
+                                self.add(AUX)
+
+                                self.question = True
+
                             else:
                                 self.add(ADJ)
 
                             if len(self.sentence) < 2:
                                 break
+
+                while self.sentence[0] in punctuation:
+                    self.add(PUNC)
+
+                    if not self.sentence:
+                        return self.out
 
                 self.add(ADV)
 
@@ -881,6 +917,9 @@ class Parser:
                     self.add(ADJ)
             
             elif self.sentence[0] in self.pronouns:
+                if self.sentence[0] in self.questions:
+                    self.question = True
+
                 self.add(PRON)
 
             elif self.sentence[0] in self.adverbs:
@@ -895,11 +934,14 @@ class Parser:
             elif self.sentence[0] in self.conjunctions:
                 self.add(CONJ)
 
-            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners) or self.out[-1].wordclass == "aux":
+            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass == "aux":
                 self.add(VERB)
             
             elif self.sentence[0] in self.adjectives:
                 self.add(ADJ)
+
+            elif self.question and self.out[0] in self.modal_auxiliary_verbs and self.out[-1].wordclass in ["aux", "v"]:
+                self.add(ADV)
 
             else:
                 if len(self.sentence) > 1:
@@ -930,11 +972,14 @@ if __name__ == "__main__":
                 print(end="\n    ")
 
                 for w, c in zip(parse(phrase), correct.split()):
-                    print(end=f"\x1b[3{(w.wordclass == c) + 1}m" * (w.wordclass != "punc") + f"{repr(w)}\x1b[0m ")
+                    print(end=f"\x1b[3{(w.wordclass == c) + 1}m" + f"{repr(w)}\x1b[0m ")
 
                     flag |= w.wordclass != c
 
-                print()
+                if parse.question:
+                    print("(Q)")
+                else:
+                    print("(S)")
             except Exception as e:
                 print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
                 print("    Last state recorded:", parse.out)
@@ -947,7 +992,13 @@ if __name__ == "__main__":
 
     while True:
         try:
-            print("\n   \x1b[33m", parse(input("\n >  ")), end="\x1b[0m\n")
+            print("\n   \x1b[33m", parse(input("\n >  ")), end="\x1b[0m ")
+
+            if parse.question:
+                print("(Q)")
+            else:
+                print("(S)")
+
         except Exception as e:
             print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
             print("    Last state recorded:", parse.out)

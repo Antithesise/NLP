@@ -51,7 +51,6 @@ I will walk. | pn aux v punc
 I have walked. | pn aux v punc
 I had walked. | pn aux v punc
 I will have walked. | pn aux aux v punc
-Is this a question? | v pn d n punc
 That smiling guy is called Thomas. | d adj n aux v n punc
 He will have had food. | pn aux aux v n punc
 You would have had to have viewed it. | pn aux aux aux v aux v pn punc
@@ -66,3 +65,15 @@ I should go. | pn aux v punc
 I should be going. | pn aux aux v punc
 I shouldn't do this. | pn aux v pn punc
 That is a cat. | pn v d n punc
+Is this a question? | v pn d n punc
+Can I call you James? | v pn v pn n punc
+Will this work? | v pn v punc
+Will this work well? | v pn v adv punc
+Does this work? | v pn v punc
+How does this work? | v aux pn v punc
+Where did you come from? | pn aux pn v pre punc
+Whose children are those? | d n v pn punc
+Those belong to who? | pn v aux pn punc
+Do you want to eat? | v pn v aux v punc
+Do you want vanilla or chocolate? | v pn v n conj n punc
+You got my message, didn't you? | pn v d n punc aux pn punc
