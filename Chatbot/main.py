@@ -456,6 +456,14 @@ class Parser:
         "whole",
         "young",
     ]
+    questions = [
+        "how",
+        "what",
+        "when",
+        "where",
+        "who",
+        "why"
+    ]
     pronouns = [
         "all",
         "another",
@@ -595,6 +603,7 @@ class Parser:
 
     def __call__(self, sentence: str) -> SENTENCE:
         sentence = sentence.lower()
+        self.question = False
 
         for k, v in self.substitute.items():
             sentence = sub(k, v, sentence)
@@ -662,11 +671,19 @@ class Parser:
                             if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                                 self.add(VERB)
 
+        if self.sentence[0] in self.primary_auxiliary_verbs + self.questions:
+            self.add(VERB)
+
+            self.question = True
+        
+        while self.sentence[0] in self.primary_auxiliary_verbs:
+            self.add(AUX)
+
         while len([w for w in self.sentence if w not in self.punctuation]) > 2:
             if self.sentence[0] in self.punctuation:
                 self.add(PUNC)
 
-            elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
+            elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
                 self.add(DET)
 
                 if self.sentence[0].endswith("ing"):
@@ -681,7 +698,7 @@ class Parser:
             elif self.sentence[0] in self.conjunctions:
                 self.add(CONJ)
 
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and any(isinstance(w, NOUN) for w in self.out):
+            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and any(w.wordclass == "n" for w in self.out):
                 if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] == "is") and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
                     self.add(ADV)
 
@@ -731,6 +748,9 @@ class Parser:
                     self.add(VERB)
 
             else:
+                if self.out[-1].wordclass == "aux" and self.sentence[1] == "to":
+                    self.add(AUX)
+
                 break
 
         if not self.sentence:
@@ -742,7 +762,8 @@ class Parser:
                 if not self.sentence:
                     return self.out
 
-        self.add(VERB)
+        if not self.question:
+            self.add(VERB)
 
         if not self.sentence:
             return self.out
@@ -751,11 +772,11 @@ class Parser:
             self.add(ADV)
 
         if self.sentence:
-            while self.sentence[0] in self.modal_auxiliary_verbs and isinstance(self.out[-1], VERB):
+            while self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs and self.out[-1].wordclass == "v":
                 self.add(AUX)
 
                 if self.sentence:
-                    if self.out[-1] == "to" and self.sentence[0] not in self.punctuation + self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns:
+                    if self.out[-2] == "to" and self.sentence[0] not in self.punctuation + self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns:
                         self.add(VERB)
                     elif len(self.sentence) > 1:
                         if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
@@ -764,7 +785,7 @@ class Parser:
                     return self.out
 
         while len(self.sentence) > 1:
-            if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
+            if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
                 self.add(DET)
 
                 if self.sentence[0].endswith("ing"):
@@ -805,7 +826,7 @@ class Parser:
                 else:
                     self.add(ADJ)
 
-            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not isinstance(self.out[-1], VERB)) or self.sentence[0] in self.adjectives:
+            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] == "is") and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v") or self.sentence[0] in self.adjectives:
                 self.add(ADJ)
 
             else:
@@ -821,7 +842,7 @@ class Parser:
                 if len(self.sentence) > 1:
                     if self.sentence[1] not in self.punctuation:
                         while self.sentence[0] not in self.punctuation:
-                            if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
+                            if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
                                 self.add(DET)
 
                             elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
@@ -874,7 +895,7 @@ class Parser:
             elif self.sentence[0] in self.conjunctions:
                 self.add(CONJ)
 
-            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not isinstance(self.out[-1], ADJ) and self.out[-1] not in self.quantifiers_distributives + self.determiners) or isinstance(self.out[-1], AUX):
+            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners) or self.out[-1].wordclass == "aux":
                 self.add(VERB)
             
             elif self.sentence[0] in self.adjectives:
