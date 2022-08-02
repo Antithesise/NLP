@@ -774,7 +774,7 @@ class Parser:
             elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
                 self.add(ADV)
 
-            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                 if self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs or self.sentence[0].endswith("n't"):
                     self.add(AUX)
                 else:
