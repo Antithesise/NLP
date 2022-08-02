@@ -463,6 +463,7 @@ class Parser:
         "what",
         "when",
         "where",
+        "which",
         "who",
         "whom",
         "whose",
@@ -684,7 +685,7 @@ class Parser:
                                 self.add(VERB)
 
         if self.sentence[0] in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs + self.questions or self.sentence[0].endswith("n't"):
-            if self.sentence[0] == "whose":
+            if self.sentence[0] in ["whose", "which"]:
                 self.add(DET)
             elif self.sentence[0] in self.pronouns:
                 self.add(PRON)
