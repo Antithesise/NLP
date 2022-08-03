@@ -997,7 +997,7 @@ class Parser:
             elif self.sentence[0] in [w for w in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs if w not in ["am", "are", "be", "being", "is", "to"]] or self.sentence[0].endswith("n't"):
                 self.add(AUX)
 
-            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass == "aux":
+            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass in ["aux", "adv"]:
                 self.add(VERB)
 
             elif self.sentence[0] in self.adjectives:

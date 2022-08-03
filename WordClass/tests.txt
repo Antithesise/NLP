@@ -66,7 +66,7 @@ I should be going. | pn aux aux v punc
 I shouldn't do this. | pn aux v pn punc
 That is a cat. | pn v d n punc
 As I was saying ... | conj pn aux v punc
-Scotty accepted the decision with indifference and did not enter the arguments. | 
+Scotty accepted the decision with indifference and did not enter the arguments. | n v d n pre n conj aux adv v d n punc
 Is this a question? | v pn d n punc
 Can I call you James? | v pn v pn n punc
 Will this work? | v pn v punc
