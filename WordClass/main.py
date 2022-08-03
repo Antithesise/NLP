@@ -61,7 +61,7 @@ class Parser:
         "each",
         "every",
         "several",
-        "few",
+        "few"
     ] 
     primary_auxiliary_verbs = [
         "am",
@@ -76,7 +76,7 @@ class Parser:
         "has",
         "have",
         "having",
-        "is",
+        "is"
     ]
     modal_auxiliary_verbs = [
         "can",
@@ -110,7 +110,7 @@ class Parser:
         "less",
         "like",
         "ous",
-        "y",
+        "y"
     ]
     verb_suffixes = [
         "ed",
@@ -119,7 +119,7 @@ class Parser:
         "es",
         "ng",
         "ize",
-        "ise",
+        "ise"
     ]
     conjunctions = [
         "and",
@@ -128,8 +128,8 @@ class Parser:
         "for",
         "nor",
         "or",
-        "so"
-        "yet",
+        "so",
+        "yet"
     ]
     prepositions = [
         "a",
@@ -331,7 +331,8 @@ class Parser:
         "whilst",
         "with",
         "within",
-        "without"]
+        "without"
+    ]
     determiners = [
         "the",
         "a",
@@ -359,7 +360,7 @@ class Parser:
         "quite",
         "last",
         "next",
-        "certain",
+        "certain"
     ]
     adjectives = [
         "able",
@@ -455,7 +456,7 @@ class Parser:
         "various",
         "white",
         "whole",
-        "young",
+        "young"
     ]
     questions = [
         "how",
@@ -592,7 +593,47 @@ class Parser:
     ]
     adverbs = [
         "also",
-        "too"
+        "too",
+        "almost",
+        "always",
+        "annually",
+        "constantly",
+        "continually",
+        "continuously",
+        "eventually",
+        "ever",
+        "frequently",
+        "generally",
+        "hardly",
+        "hourly",
+        "infrequently",
+        "intermittently",
+        "later",
+        "monthly",
+        "mearly",
+        "never",
+        "next",
+        "nightly",
+        "normally",
+        "now",
+        "occasionally",
+        "often",
+        "periodically",
+        "quarterly",
+        "rarely",
+        "regularly",
+        "scarcely",
+        "seldom",
+        "sometimes",
+        "soon",
+        "then",
+        "today",
+        "tonight",
+        "usually",
+        "weekly",
+        "yearly",
+        "yesterday",
+        "yet"
     ]
     punctuation = [
         ",",
@@ -710,10 +751,12 @@ class Parser:
 
             elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
                 if len(self.sentence) > 2:
-                    if self.sentence[2] == "to" or self.question:
+                    if self.sentence[2] == "to" or self.question or (self.sentence[0] in ["this", "that"] and any(self.sentence[1].endswith(s) for s in ["ed", "en", "er", "es", "ize", "ise", "s"] + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs)):
                         break
                     else:
                         self.add(DET)
+                elif self.sentence[0] in ["this", "that"] and any(self.sentence[1].endswith(s) for s in ["ed", "en", "er", "es", "ize", "ise", "s"] + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs):
+                    break
                 else:
                     self.add(DET)
 
