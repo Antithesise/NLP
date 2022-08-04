@@ -36,6 +36,43 @@ class SENTENCE(list[WORDCLASS]):
 
 
 class Parser:
+    subordinating_conjunctions = [
+        "after",
+        "although",
+        "as",
+        "because",
+        "before",
+        "even",
+        "if",
+        "in",
+        "inasmuch",
+        "just",
+        "lest",
+        "now",
+        "provided",
+        "since",
+        "supposing",
+        "than",
+        "though",
+        "till",
+        "unless",
+        "until",
+        "whenever",
+        "whereas",
+        "wherever",
+        "whether",
+        "while",
+        "whoever"
+    ]
+    coordinating_conjunctions = [
+        "and",
+        "but",
+        "for",
+        "nor",
+        "or",
+        "so",
+        "yet"
+    ]
     quantifiers_distributives = [
         "few",
         "fewer",
@@ -98,6 +135,7 @@ class Parser:
         "ant",
         "ary",
         "ent",
+        "er",
         "free",
         "ful",
         "full",
@@ -119,16 +157,6 @@ class Parser:
         "ng",
         "ize",
         "ise"
-    ]
-    conjunctions = [
-        "and",
-        "as",
-        "but",
-        "for",
-        "nor",
-        "or",
-        "so",
-        "yet"
     ]
     prepositions = [
         "a",
@@ -696,13 +724,13 @@ class Parser:
                         elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                             self.add(PREP)
                         
-                        elif self.sentence[0] in self.conjunctions:
+                        elif self.sentence[0] in self.coordinating_conjunctions:
                             self.add(CONJ)
                         
                         elif self.sentence[0] in self.adjectives:
                             self.add(ADJ)
                         
-                        elif self.sentence[1] in self.punctuation + self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
+                        elif self.sentence[1] in self.punctuation + self.coordinating_conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                             self.add(NOUN)
 
                         else:
@@ -727,294 +755,317 @@ class Parser:
                             if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                                 self.add(VERB)
 
-        if self.sentence[0] in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs + self.questions or self.sentence[0].endswith("n't"):
-            if self.sentence[0] in ["whose", "which"]:
-                self.add(DET)
-            elif self.sentence[0] in self.pronouns:
-                self.add(PRON)
-            elif self.out:
-                self.add(AUX)
-            else:
-                self.add(VERB)
+        while self.sentence:
+            while self.sentence[0] in self.subordinating_conjunctions:
+                self.add(CONJ)
 
-            self.question = True
-        
-            while self.sentence[0] in self.primary_auxiliary_verbs:
-                self.add(AUX)
-        
-        if self.sentence[0] in self.conjunctions:
-            self.add(CONJ)
+            if self.sentence[0] in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs + self.questions or self.sentence[0].endswith("n't"):
+                if self.sentence[0] in ["whose", "which"]:
+                    self.add(DET)
+                elif self.sentence[0] in self.pronouns:
+                    self.add(PRON)
+                elif self.out:
+                    self.add(AUX)
+                else:
+                    self.add(VERB)
 
-        while len([w for w in self.sentence if w not in self.punctuation]) > 2:
-            if self.sentence[0] in self.punctuation:
-                self.add(PUNC)
+                self.question = True
+            
+                while self.sentence[0] in self.primary_auxiliary_verbs:
+                    self.add(AUX)
+            
+            if self.sentence[0] in self.coordinating_conjunctions:
+                self.add(CONJ)
 
-            elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
-                if len(self.sentence) > 2:
-                    if self.sentence[2] == "to" or self.question or (self.sentence[0] in ["this", "that"] and any(self.sentence[1].endswith(s) for s in ["ed", "en", "er", "es", "ize", "ise", "s"] + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs)):
+            while len([w for w in self.sentence if w not in self.punctuation]) > 2:
+                if self.sentence[0] in self.punctuation:
+                    self.add(PUNC)
+
+                elif (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
+                    if len(self.sentence) > 2:
+                        if self.sentence[2] == "to" or self.question or (self.sentence[0] in ["this", "that"] and any(self.sentence[1].endswith(s) for s in ["ed", "en", "er", "es", "ize", "ise", "s"] + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs)):
+                            break
+                        else:
+                            self.add(DET)
+                    elif self.sentence[0] in ["this", "that"] and any(self.sentence[1].endswith(s) for s in ["ed", "en", "er", "es", "ize", "ise", "s"] + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs):
                         break
                     else:
                         self.add(DET)
-                elif self.sentence[0] in ["this", "that"] and any(self.sentence[1].endswith(s) for s in ["ed", "en", "er", "es", "ize", "ise", "s"] + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs):
-                    break
-                else:
-                    self.add(DET)
 
-                if self.sentence[0].endswith("ing"):
-                    self.add(ADJ)
-            
-            elif self.sentence[0] in self.adverbs:
-                self.add(ADV)
-
-            elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                self.add(PREP)
-
-            elif self.sentence[0] in self.conjunctions:
-                self.add(CONJ)
-
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and any(w.wordclass == "n" for w in self.out):
-                if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                    if self.sentence[0].endswith("ing"):
+                        self.add(ADJ)
+                
+                elif self.sentence[0] in self.adverbs:
                     self.add(ADV)
 
-                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                        self.add(AUX)
-
-                    self.add(VERB)
-
-                    if self.sentence:
-                        while self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                            self.add(AUX)
-
-                            if len(self.sentence) > 1:
-                                if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                                    self.add(VERB)
-
-                else:
-                    self.add(ADJ)
-
-            elif self.sentence[0] in self.adjectives:
-                self.add(ADJ)
-
-            elif self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
-                self.add(NOUN)
-
-            else:
-                break
-
-        if len([w for w in (self.sentence + self.out) if w not in self.punctuation]) == 1:
-            self.add(INT)
-        elif self.sentence[0] in self.punctuation:
-            self.add(PUNC)
-        elif self.sentence[0] in self.pronouns:
-            self.add(PRON)
-        else:
-            self.add(NOUN)
-
-        while len(self.sentence) > 1 and not self.question:
-            if self.sentence[0] in self.punctuation:
-                self.add(PUNC)
-
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
-                self.add(ADV)
-
-            elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                if self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                    self.add(AUX)
-                else:
-                    self.add(VERB)
-
-            else:
-                if self.out[-1].wordclass == "aux" and self.sentence[1] == "to":
-                    self.add(AUX)
-
-                break
-
-        if not self.sentence:
-            return self.out
-        else:
-            while self.sentence[0] in self.punctuation:
-                self.add(PUNC)
-
-                if not self.sentence:
-                    return self.out
-
-        if self.question:
-            if self.out[0] not in ["am", "are", "be", "being", "is"]:
-                self.add(VERB)
-        else:
-            self.add(VERB)
-
-        if not self.sentence:
-            return self.out
-
-        if self.sentence[0] in self.adverbs or self.sentence[0].endswith("ly"):
-            self.add(ADV)
-
-        if self.sentence:
-            while self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs and self.out[-1].wordclass == "v":
-                self.add(AUX)
-
-                if self.sentence:
-                    if self.out[-2] == "to" and self.sentence[0] not in self.punctuation + self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns:
-                        self.add(VERB)
-                    elif len(self.sentence) > 1:
-                        if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                            self.add(VERB)
-                else:
-                    return self.out
-
-        while len(self.sentence) > 1:
-            if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
-                self.add(DET)
-
-                if self.sentence[0].endswith("ing"):
-                    self.add(ADJ)
-
-            elif self.sentence[0] in self.pronouns:
-                if self.sentence[0] in self.questions:
-                    self.question = True
-
-                self.add(PRON)
-
-            elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                if self.sentence[1] in self.punctuation and not self.question:
-                    self.add(ADV)
-                else:
+                elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                     self.add(PREP)
-            
-            elif self.sentence[0] in self.conjunctions:
-                self.add(CONJ)
 
-            elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and self.out[-1] not in self.determiners:
-                if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
-                    self.add(ADV)
+                elif self.sentence[0] in self.coordinating_conjunctions:
+                    self.add(CONJ)
 
-                    while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                        self.add(AUX)
+                elif any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and any(w.wordclass == "n" for w in self.out):
+                    if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                        self.add(ADV)
 
-                        if len(self.sentence) == 1:
-                            break
-
-                    self.add(VERB)
-
-                    if self.sentence:
-                        while self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                        while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                             self.add(AUX)
 
-                            if len(self.sentence) > 1:
-                                if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
-                                    self.add(VERB)
+                        self.add(VERB)
 
-                else:
-                    self.add(ADJ)
-
-            elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] in ["is", "are"]) and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v" and not self.question) or self.sentence[0] in self.adjectives:
-                self.add(ADJ)
-
-            else:
-                break
-
-        while self.sentence:
-            if self.sentence[0] in self.punctuation:
-                self.add(PUNC)
-
-                if not self.sentence:
-                    break
-
-                if len(self.sentence) > 1:
-                    if self.sentence[1] not in self.punctuation:
-                        while self.sentence[0] not in self.punctuation:
-                            if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
-                                self.add(DET)
-
-                            elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
-                                self.add(DET)
-
-                                if self.sentence[0].endswith("ing"):
-                                    self.add(ADJ)
-
-                            elif self.sentence[0] in self.pronouns:
-                                if self.sentence[0] in self.questions:
-                                    self.question = True
-                                
-                                self.add(PRON)
-
-                            elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                                self.add(PREP)
-
-                            elif self.sentence[0] in self.conjunctions:
-                                self.add(CONJ)
-
-                            elif self.sentence[0] in self.adjectives:
-                                self.add(ADJ)
-
-                            elif self.sentence[1] in self.punctuation + self.conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
-                                self.add(NOUN)
-
-                            elif self.sentence[0].endswith("n't"):
+                        if self.sentence:
+                            while self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
                                 self.add(AUX)
 
-                                self.question = True
+                                if len(self.sentence) > 1:
+                                    if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                                        self.add(VERB)
 
-                            else:
-                                self.add(ADJ)
+                    else:
+                        self.add(ADJ)
 
-                            if len(self.sentence) < 2:
-                                break
+                elif self.sentence[0] in self.adjectives:
+                    self.add(ADJ)
 
+                elif (self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'") or self.sentence[1] in self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns) and self.sentence[0] not in self.pronouns and (self.sentence[2] not in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'")):
+                    self.add(NOUN)
+
+                else:
+                    break
+
+            if len(self.sentence) > 1:
+                if not self.out and self.sentence[1] in self.punctuation:
+                    self.add(INT)
+                elif self.sentence[0] in self.punctuation:
+                    self.add(PUNC)
+                elif self.sentence[0] in self.pronouns:
+                    self.add(PRON)
+                else:
+                    self.add(NOUN)
+            else:
+                if not self.out:
+                    self.add(INT)
+                elif self.sentence[0] in self.punctuation:
+                    self.add(PUNC)
+                elif self.sentence[0] in self.pronouns:
+                    self.add(PRON)
+                else:
+                    self.add(NOUN)
+
+            while len(self.sentence) > 1 and not self.question:
+                if self.sentence[0] in self.punctuation:
+                    self.add(PUNC)
+
+                elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
+                    self.add(ADV)
+
+                elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                    if self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                        self.add(AUX)
+                    else:
+                        self.add(VERB)
+
+                else:
+                    if self.out[-1].wordclass == "aux" and self.sentence[1] == "to":
+                        self.add(AUX)
+
+                    break
+
+            if not self.sentence:
+                return self.out
+            else:
                 while self.sentence[0] in self.punctuation:
                     self.add(PUNC)
 
                     if not self.sentence:
                         return self.out
 
-                self.add(ADV)
-
-            elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
-                self.add(DET)
-
-                if self.sentence[0].endswith("ing"):
-                    self.add(ADJ)
-
-            elif self.sentence[0] in self.pronouns:
-                if self.sentence[0] in self.questions:
-                    self.question = True
-
-                self.add(PRON)
-
-            elif self.sentence[0] in self.adverbs:
-                self.add(ADV)
-
-            elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
-                self.add(ADJ)
-
-            elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
-                self.add(PREP)
-
-            elif self.sentence[0] in self.conjunctions:
-                self.add(CONJ)
-
-            elif self.sentence[0] in [w for w in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs if w not in ["am", "are", "be", "being", "is", "to"]] or self.sentence[0].endswith("n't"):
-                self.add(AUX)
-
-            elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass in ["aux", "adv"]:
+            if self.question:
+                if self.out[0] not in ["am", "are", "be", "being", "is"]:
+                    self.add(VERB)
+            else:
                 self.add(VERB)
 
-            elif self.sentence[0] in self.adjectives:
-                self.add(ADJ)
+            if not self.sentence:
+                return self.out
 
-            elif self.question and self.out[0] in self.modal_auxiliary_verbs and self.out[-1].wordclass in ["aux", "v"]:
+            if self.sentence[0] in self.adverbs or self.sentence[0].endswith("ly"):
                 self.add(ADV)
 
-            else:
-                if len(self.sentence) > 1:
-                    if any(self.sentence[1].endswith(s) for s in self.adjective_suffixes):
+            if self.sentence:
+                while self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs and self.out[-1].wordclass == "v":
+                    self.add(AUX)
+
+                    if self.sentence:
+                        if self.out[-2] == "to" and self.sentence[0] not in self.punctuation + self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns:
+                            self.add(VERB)
+                        elif len(self.sentence) > 1:
+                            if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                                self.add(VERB)
+                    else:
+                        return self.out
+
+            while len(self.sentence) > 1:
+                if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
+                    self.add(DET)
+
+                    if self.sentence[0].endswith("ing"):
                         self.add(ADJ)
+
+                elif self.sentence[0] in self.pronouns:
+                    if self.sentence[0] in self.questions:
+                        self.question = True
+
+                    self.add(PRON)
+
+                elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
+                    self.add(CONJ)
+
+                    continue
+
+                elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+                    if self.sentence[1] in self.punctuation and not self.question:
+                        self.add(ADV)
+                    else:
+                        self.add(PREP)
+
+                elif (any(self.sentence[0].endswith(s) and self.sentence[0] != s for s in self.adjective_suffixes) and self.out[-1] not in self.determiners):
+                    if ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s"):
+                        self.add(ADV)
+
+                        while ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in ["is", "are"]) and self.sentence[1] not in self.quantifiers_distributives + self.determiners) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                            self.add(AUX)
+
+                            if len(self.sentence) == 1:
+                                break
+
+                        self.add(VERB)
+
+                        if self.sentence:
+                            while self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                                self.add(AUX)
+
+                                if len(self.sentence) > 1:
+                                    if self.sentence[1] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                                        self.add(VERB)
+
+                    else:
+                        self.add(ADJ)
+
+                elif (((any(self.sentence[0].endswith(s) for s in self.verb_suffixes) or self.sentence[0] in ["is", "are"]) and self.sentence[0] not in self.quantifiers_distributives + self.determiners) and not (self.sentence[1] in self.prepositions or self.sentence[1].endswith("ward") or self.sentence[1].endswith("wards")) and self.out[-1] not in self.determiners and not self.out[-1].wordclass == "v" and not self.question) or self.sentence[0] in self.adjectives:
+                    self.add(ADJ)
+
+                else:
+                    break
+
+            while self.sentence:
+                if self.sentence[0] in self.punctuation:
+                    self.add(PUNC)
+
+                    if not self.sentence:
+                        break
+
+                    if len(self.sentence) > 1:
+                        if self.sentence[1] not in self.punctuation:
+                            while self.sentence[0] not in self.punctuation:
+                                if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
+                                    self.add(DET)
+
+                                elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
+                                    self.add(DET)
+
+                                    if self.sentence[0].endswith("ing"):
+                                        self.add(ADJ)
+
+                                elif self.sentence[0] in self.pronouns:
+                                    if self.sentence[0] in self.questions:
+                                        self.question = True
+                                    
+                                    self.add(PRON)
+
+                                elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
+                                    self.add(CONJ)
+
+                                    continue
+
+                                elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+                                    self.add(PREP)
+
+                                elif self.sentence[0] in self.adjectives:
+                                    self.add(ADJ)
+
+                                elif self.sentence[1] in self.punctuation + self.coordinating_conjunctions or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
+                                    self.add(NOUN)
+
+                                elif self.sentence[0].endswith("n't"):
+                                    self.add(AUX)
+
+                                    self.question = True
+
+                                else:
+                                    self.add(ADJ)
+
+                                if len(self.sentence) < 2:
+                                    break
+
+                    while self.sentence[0] in self.punctuation:
+                        self.add(PUNC)
+
+                        if not self.sentence:
+                            return self.out
+
+                    self.add(ADV)
+
+                elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
+                    self.add(DET)
+
+                    if self.sentence[0].endswith("ing"):
+                        self.add(ADJ)
+
+                elif self.sentence[0] in self.pronouns:
+                    if self.sentence[0] in self.questions:
+                        self.question = True
+
+                    self.add(PRON)
+
+                elif self.sentence[0] in self.adverbs:
+                    self.add(ADV)
+
+                elif self.out[-1].wordclass == "adv":
+                    self.add(VERB)
+
+                elif any(self.sentence[0].endswith(s) for s in self.adjective_suffixes):
+                    self.add(ADJ)
+
+                elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
+                    self.add(CONJ)
+
+                    continue
+
+                elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
+                    self.add(PREP)
+
+                elif self.sentence[0] in [w for w in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs if w not in ["am", "are", "be", "being", "is", "to"]] or self.sentence[0].endswith("n't"):
+                    self.add(AUX)
+
+                elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass in ["aux", "adv"]:
+                    self.add(VERB)
+
+                elif self.sentence[0] in self.adjectives:
+                    self.add(ADJ)
+
+                elif self.question and self.out[0] in self.modal_auxiliary_verbs and self.out[-1].wordclass in ["aux", "v"]:
+                    self.add(ADV)
+
+                else:
+                    if len(self.sentence) > 1:
+                        if any(self.sentence[1].endswith(s) for s in self.adjective_suffixes):
+                            self.add(ADJ)
+                        else:
+                            self.add(NOUN)
                     else:
                         self.add(NOUN)
-                else:
-                    self.add(NOUN)
-        
+            
         return self.out
 
 
