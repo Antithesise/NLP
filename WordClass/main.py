@@ -756,6 +756,8 @@ class Parser:
                                 self.add(VERB)
 
         while self.sentence:
+            skip = False
+
             while self.sentence[0] in self.subordinating_conjunctions:
                 self.add(CONJ)
 
@@ -881,7 +883,7 @@ class Parser:
                         return self.out
 
             if self.question:
-                if self.out[0] not in ["am", "are", "be", "being", "is"]:
+                if self.out[0] not in ["am", "are", "be", "being", "is", "was"]:
                     self.add(VERB)
             else:
                 self.add(VERB)
@@ -905,7 +907,7 @@ class Parser:
                     else:
                         return self.out
 
-            while len(self.sentence) > 1:
+            while len(self.sentence) > 1 and not skip:
                 if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
                     self.add(DET)
 
@@ -920,6 +922,8 @@ class Parser:
 
                 elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
                     self.add(CONJ)
+
+                    skip = True
 
                     continue
 
@@ -957,8 +961,11 @@ class Parser:
 
                 else:
                     break
+            
+            if skip:
+                continue
 
-            while self.sentence:
+            while self.sentence and not skip:
                 if self.sentence[0] in self.punctuation:
                     self.add(PUNC)
 
@@ -967,7 +974,7 @@ class Parser:
 
                     if len(self.sentence) > 1:
                         if self.sentence[1] not in self.punctuation:
-                            while self.sentence[0] not in self.punctuation:
+                            while self.sentence[0] not in self.punctuation and not skip:
                                 if self.sentence[1] in self.quantifiers_distributives and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
                                     self.add(DET)
 
@@ -985,6 +992,8 @@ class Parser:
 
                                 elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
                                     self.add(CONJ)
+
+                                    skip = True
 
                                     continue
 
@@ -1007,6 +1016,9 @@ class Parser:
 
                                 if len(self.sentence) < 2:
                                     break
+                            
+                            if skip:
+                                continue
 
                     while self.sentence[0] in self.punctuation:
                         self.add(PUNC)
@@ -1040,12 +1052,13 @@ class Parser:
                 elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
                     self.add(CONJ)
 
-                    continue
+                    if self.out[-1] != "and":
+                        continue
 
                 elif self.sentence[0] in self.prepositions or self.sentence[0].endswith("ward") or self.sentence[0].endswith("wards"):
                     self.add(PREP)
 
-                elif self.sentence[0] in [w for w in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs if w not in ["am", "are", "be", "being", "is", "to"]] or self.sentence[0].endswith("n't"):
+                elif self.sentence[0] in [w for w in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs if w not in ["am", "are", "be", "being", "is", "was", "to"]] or self.sentence[0].endswith("n't"):
                     self.add(AUX)
 
                 elif (any(self.sentence[0].endswith(s) for s in self.verb_suffixes) and not self.out[-1].wordclass == "adj" and self.out[-1] not in self.quantifiers_distributives + self.determiners and not self.question) or self.out[-1].wordclass in ["aux", "adv"]:
@@ -1066,6 +1079,9 @@ class Parser:
                     else:
                         self.add(NOUN)
             
+            if skip:
+                continue
+
         return self.out
 
 
