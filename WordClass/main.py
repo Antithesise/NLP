@@ -1031,6 +1031,9 @@ class Parser:
                         if not self.sentence:
                             return self.out
 
+                    if self.sentence[0] in self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns + self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs:
+                        continue
+
                     self.add(ADV)
 
                 elif self.sentence[0] in self.determiners + self.quantifiers_distributives and len([w for w in self.sentence if w not in self.punctuation]) > 1:
