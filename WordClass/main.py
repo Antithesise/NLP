@@ -5,7 +5,7 @@ class WORDCLASS(str):
     wordclass: str = ""
 
     def __repr__(self) -> str:
-        return super().__repr__().removeprefix("'").removeprefix("\"").removesuffix("'").removesuffix("\"") + f" ({self.wordclass})" * (self.wordclass and self.wordclass != "punc")
+        return self + f" ({self.wordclass})" * (self.wordclass and self.wordclass != "punc")
 
 class NOUN(WORDCLASS):
     wordclass = "n"
@@ -29,6 +29,8 @@ class CONJ(WORDCLASS):
     wordclass = "conj"
 class PUNC(WORDCLASS):
     wordclass = "punc"
+class QUOTE(WORDCLASS):
+    wordclass = "q"
 
 class SENTENCE(list[WORDCLASS]):
     def __repr__(self) -> str:
@@ -680,7 +682,7 @@ class Parser:
     }
 
     def add(self, WClass: WORDCLASS) -> None:
-        self.out.append(WClass(self.sentence.pop(0)))
+        self.out.append((QUOTE if self.sentence[0][0] + self.sentence[0][-1] == "\"\"" else WClass)(self.sentence.pop(0)))
 
     def __call__(self, sentence: str) -> SENTENCE:
         sentence = sentence.lower()
@@ -689,7 +691,7 @@ class Parser:
         for k, v in self.substitute.items():
             sentence = sub(k, v, sentence)
 
-        self.sentence = [w for w in split(r" |(\.\.\.)|(?=[,.;:?!])", sentence) if w]
+        self.sentence = [w for w in split(r" |(\.\.\.)|(\"[^\"]+\")|(?=[,.;:?!])", sentence) if w]
         self.out = SENTENCE()
 
         if not self.sentence:
@@ -829,11 +831,14 @@ class Parser:
                 elif self.sentence[0] in self.adjectives:
                     self.add(ADJ)
 
-                elif (self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'") or self.sentence[1] in self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns) and self.sentence[0] not in self.pronouns and (self.sentence[2] not in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'")):
+                elif (self.sentence[1] in self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns and self.sentence[0] not in self.pronouns and self.sentence[2] not in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs) or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                     self.add(NOUN)
 
                 else:
                     break
+
+            while self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
+                self.add(NOUN)
 
             if len(self.sentence) > 1:
                 if not self.out and self.sentence[1] in self.punctuation:
@@ -861,7 +866,7 @@ class Parser:
                 elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
                     self.add(ADV)
 
-                elif ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs or self.sentence[0].endswith("n't"):
+                elif ((((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs) and (not any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.adjective_suffixes) or any(w.endswith(s) or w in self.primary_auxiliary_verbs for s in self.verb_suffixes for w in self.sentence[1:] if w not in self.punctuation))) or self.sentence[0].endswith("n't"):
                     if self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs or self.sentence[0].endswith("n't"):
                         self.add(AUX)
                     else:
@@ -920,7 +925,7 @@ class Parser:
 
                     self.add(PRON)
 
-                elif self.sentence[0] in self.coordinating_conjunctions + self.subordinating_conjunctions:
+                elif (self.sentence[0] in self.coordinating_conjunctions or self.sentence[0] in self.subordinating_conjunctions) and ((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) or ("'" in self.sentence[1] and self.sentence[0].split("'")[-1] != "s") or self.sentence[1] in self.modal_auxiliary_verbs + self.punctuation + self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns or self.sentence[1].endswith("n't")):
                     self.add(CONJ)
 
                     skip = True
@@ -1108,8 +1113,10 @@ if __name__ == "__main__":
 
                 if parse.question:
                     print("(Q)")
-                else:
+                elif any(w.wordclass == "v" for w in parse.out):
                     print("(S)")
+                else:
+                    print("(F)")
             except Exception as e:
                 print("\n    \x1b[31mError:", e, end="\x1b[0m\n")
                 print("    Last state recorded:", parse.out)
@@ -1126,8 +1133,10 @@ if __name__ == "__main__":
 
             if parse.question:
                 print("(Q)")
-            elif parse.out:
+            elif any(w.wordclass == "v" for w in parse.out):
                 print("(S)")
+            elif parse.out:
+                print("(F)")
 
         except KeyboardInterrupt:
             print("\x1b[0m\x1b[2K\rExiting...\n")
