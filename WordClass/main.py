@@ -1128,7 +1128,7 @@ if __name__ == "__main__":
 
             incorrect += flag
 
-    print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n************************************************************\n\nEntering Interactive Mode. Press Ctrl+C to exit...")
+    print(f"\nTesting complete: {len(tests) - incorrect}/{len(tests)} correct.\n\n{'*' * 145}\n\nEntering Interactive Mode. Press Ctrl+C to exit...")
 
     while True:
         try:
