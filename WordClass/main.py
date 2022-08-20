@@ -1,3 +1,4 @@
+from collections import UserList
 from re import split, sub
 
 
@@ -32,9 +33,9 @@ class PUNC(WORDCLASS):
 class QUOTE(WORDCLASS):
     wordclass = "q"
 
-class SENTENCE(list[WORDCLASS]):
+class SENTENCE(UserList[WORDCLASS]):
     def __repr__(self) -> str:
-        return " ".join([repr(w) for w in self.copy()])
+        return " ".join([repr(w) for w in self.data[:]])
 
 
 class Parser:
