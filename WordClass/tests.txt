@@ -75,6 +75,8 @@ You had a cat. | pn v d n punc
 She is a cat. | pn v d n punc
 He said "Hello, how are you?". | pn v q punc
 Is this a question? | v pn d n punc
+Is Paul tired? | v n adj punc
+Is Paul a human? | v n d n punc
 Can I call you James? | v pn v pn n punc
 Will this work? | v pn v punc
 Will this work well? | v pn v adv punc

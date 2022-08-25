@@ -832,7 +832,7 @@ class Parser:
                 elif self.sentence[0] in self.adjectives:
                     self.add(ADJ)
 
-                elif (self.sentence[1] in self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns and self.sentence[0] not in self.pronouns and self.sentence[2] not in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs) or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
+                elif (self.sentence[1] in self.determiners + self.quantifiers_distributives + self.prepositions + self.pronouns and self.sentence[0] not in self.pronouns and self.sentence[2] not in self.primary_auxiliary_verbs + self.modal_auxiliary_verbs and not self.question) or self.sentence[0].endswith("'s") or self.sentence[0].endswith("s'"):
                     self.add(NOUN)
 
                 else:
