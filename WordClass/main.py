@@ -915,6 +915,13 @@ class Parser:
                                 self.add(VERB)
                     else:
                         return self.out
+            else:
+                return self.out
+            
+            if self.sentence[0] == "that" and len([w for w in self.sentence if w not in self.punctuation]) > 1:
+                self.add(CONJ)
+
+                continue
 
             while len(self.sentence) > 1 and not skip:
                 if (self.sentence[0] in self.determiners + self.quantifiers_distributives or self.sentence[1] in self.quantifiers_distributives) and self.sentence[1] not in self.punctuation + self.modal_auxiliary_verbs + self.primary_auxiliary_verbs + self.determiners:
