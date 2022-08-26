@@ -33,7 +33,6 @@ My mother is also a human. | d n v adv d n punc
 My friend's dad is an alien. | d n n v d n punc
 This sentence works. | d n v punc
 This works sometimes. | pn v adv punc
-This works sometimes | pn v adv
 He sleeps. | pn v punc
 My mum doesn't really like bread. | d n aux adv v n punc
 At least half of these tests will succeed. | d d d pre d n aux v punc
@@ -88,3 +87,4 @@ Those belong to who? | pn v aux pn punc
 Do you want to eat? | v pn v aux v punc
 Do you want vanilla or chocolate? | v pn v n conj n punc
 You got my message, didn't you? | pn v d n punc aux pn punc
+This is silly, isn't it? | pn v adj punc aux pn punc
