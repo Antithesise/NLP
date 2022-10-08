@@ -116,7 +116,8 @@ class Parser:
         "has",
         "have",
         "having",
-        "is"
+        "is",
+        "was"
     ]
     modal_auxiliary_verbs = [
         "can",
@@ -127,7 +128,6 @@ class Parser:
         "shall",
         "should",
         "to",
-        "was",
         "were",
         "will",
         "would"
@@ -867,11 +867,14 @@ class Parser:
                 elif any(self.sentence[0].endswith(s) and self.sentence[0] != s and self.sentence[0] not in self.quantifiers_distributives + self.determiners for s in self.adjective_suffixes) or self.sentence[0] in self.adverbs:
                     self.add(ADV)
 
-                elif ((((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions + self.adverbs) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs) and (not any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.adjective_suffixes) or any(w.endswith(s) or w in self.primary_auxiliary_verbs for s in self.verb_suffixes for w in self.sentence[1:] if w not in self.punctuation))) or self.sentence[0].endswith("n't"):
+                elif (((any(self.sentence[1].endswith(s) for s in self.verb_suffixes) or self.sentence[1] in self.primary_auxiliary_verbs) and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions + self.adverbs) or ("'" in self.sentence[0] and self.sentence[0].split("'")[-1] != "s") or self.sentence[0] in self.modal_auxiliary_verbs) and (not any(self.sentence[1].endswith(s) and self.sentence[1] != s for s in self.adjective_suffixes) or any(w.endswith(s) or w in self.primary_auxiliary_verbs for s in self.verb_suffixes for w in self.sentence[1:] if w not in self.punctuation)) and not self.sentence[0].endswith("n't"):
                     if self.sentence[0] in self.modal_auxiliary_verbs + self.primary_auxiliary_verbs or self.sentence[0].endswith("n't"):
                         self.add(AUX)
                     else:
                         self.add(VERB)
+
+                elif self.sentence[0].endswith("n't") and self.sentence[1] not in self.quantifiers_distributives + self.determiners + self.pronouns + self.prepositions + self.adverbs:
+                    self.add(AUX)
 
                 else:
                     if self.out[-1].wordclass == "aux" and self.sentence[1] == "to":
@@ -888,10 +891,9 @@ class Parser:
                     if not self.sentence:
                         return self.out
 
-            if self.question:
-                if self.out[0] not in ["am", "are", "be", "being", "is", "was"]:
-                    self.add(VERB)
-            else:
+            if not self.question:
+                self.add(VERB)
+            elif self.out[0] not in ["am", "are", "be", "being", "is", "was"]:
                 self.add(VERB)
 
             if not self.sentence:

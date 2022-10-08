@@ -72,7 +72,8 @@ He was singing. | pn aux v punc
 She yelled because she was angry. | pn v conj pn v adj punc
 You had a cat. | pn v d n punc
 She is a cat. | pn v d n punc
-I think that that is silly | pn v conj pn v adj punc
+I think that that is silly. | pn v conj pn v adj punc
+It wasn't him. | pn v pn punc
 He said "Hello, how are you?". | pn v q punc
 Is this a question? | v pn d n punc
 Is Paul tired? | v n adj punc
