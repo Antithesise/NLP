@@ -2,8 +2,8 @@ from TextTools import wrd, suffixes, gridify
 from collections import Counter
 from MarkovText import RandText
 from random import shuffle
+from re import search
 from os import system
-
 
 with open("big.txt") as f:
     big = f.read().strip().replace("    ", "").replace("  ", " ")
@@ -58,9 +58,9 @@ while mode == "b" or start:
 
         deciphered = "".join([(sub.get(l.lower(), l) if l.islower() else sub.get(l.lower(), l).upper()).replace("?", "_" if l != "?" else "?") for l in text])
 
-        print("common letters (English):\n" + "e t a o n i s r h d l c u m f w p g y b v k x j q z", "\n")
-        print("common letters (Cipher):\n" + " ".join(common), "\n")
-        print("common letters (Deciphered):\n" + " ".join([sub.get(l, l) for l in common]), "\n")
+        print("Common letters (English):\n" + "e t a o n i s r h d l c u m f w p g y b v k x j q z", "\n")
+        print("Common letters (Cipher):\n" + " ".join(common), "\n")
+        print("Common letters (Deciphered):\n" + " ".join([sub.get(l, l) for l in common]), "\n")
 
         if cs:
             print("Common suffixes (English):\n" + " ".join(es), "\n")
@@ -85,7 +85,7 @@ while mode == "b" or start:
 
             if not caeser:
                 sub = old
-        elif i == "!": # enter/exit ceasher cipher mode
+        elif i == "!": # enter/exit reverse mode
             reverse = not reverse
 
             if not reverse:
@@ -94,11 +94,26 @@ while mode == "b" or start:
                 sub = {chr(l): chr(122 - l) for l in range(97, 123)}
         elif i == "#" and mode == "b": # enter transposition cipher mode (exit substituition cipher loop)
             break
+        elif i == "?": # search w/ regex
+            system("cls")
+
+            print("Deciphered:\n" + deciphered, "\n")
+
+            while (x := input("r/")):
+                try:
+                    r = search(x, deciphered)
+                except:
+                    r = search(r"ERROR", "ERROR")
+
+                system("cls")
+
+                print("Deciphered:\n" + deciphered, "\n")
+                print("Results:\n" + ", ".join(f"{m} ({m.start})" for m in r), "\n")
         elif caeser:
             shift += (i != "-") * 2 - 1
         elif reverse:
             continue
-        elif i == "?": # reset all
+        elif i == "-": # reset all
             sub = {chr(l): "?" for l in range(97, 123)}
         elif " " not in i: # reset
             for c in i:
@@ -109,12 +124,12 @@ while mode == "b" or start:
             for c, d in zip(k, v):
                 if c in sub:
                     sub[c] = d
-    
+
     deciphered = "".join([(sub.get(l.lower(), l) if l.islower() else sub.get(l.lower(), l).upper()).replace("?", "_" if l != "?" else "?") for l in text])
 
     while mode in "bt":
         system("cls")
-        
+
         if mode == "b":
             if not (caeser or reverse):
                 old = sub
@@ -141,9 +156,30 @@ while mode == "b" or start:
             exit()
         elif i == "#" and mode == "b": # enter substituition cipher mode (exit transposition cipher loop)
             break
+        elif i == "?":
+            system("cls")
+
+            d = "".join(
+                "".join(
+                    grid[r][c] for r in range(len(grid))
+                ) for c in range(len(grid[0]))
+            )
+
+            print("Deciphered:\n" + d, "\n")
+
+            while (x := input("r/")):
+                try:
+                    r = search(x, deciphered)
+                except:
+                    r = search(r"ERROR", "ERROR")
+
+                system("cls")
+
+                print("Deciphered:\n" + d, "\n")
+                print("Result:\n" + f"{r.group()} ({r.start()})", "\n")
         else: # arrange grid
             w = int(i)
 
-            grid = gridify("".join(deciphered.split()), w, "_")
+            grid = gridify("".join(deciphered.split()), w or 1, "_")
 
     start = False
