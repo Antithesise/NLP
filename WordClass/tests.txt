@@ -7,18 +7,18 @@ The cook is baking. | d n aux v punc
 The cook is baking cake. | d n aux v n punc
 The cook is baking a cake. | d n aux v d n punc
 The cooks are baking a cake. | d n aux v d n punc
-This example illustrates several interesting features of context-free grammars. | d n v d adj n pre adj n punc
+This example illustrates several interesting features of context-free grammars. | d n v d adj n prep adj n punc
 We have had enough. | pn aux v pn punc
 Cows like to eat grass. | n v aux v n punc
 I like to eat grass. | pn v aux v n punc
-I like to eat grass on Wednesdays. | pn v aux v n pre n punc
-On Mondays, strangely, I like to eat grass. | pre n punc adv punc pn v aux v n punc
-On Mondays, I only eat grass, strangely. | pre n punc pn adv v n punc adv punc
+I like to eat grass on Wednesdays. | pn v aux v n prep n punc
+On Mondays, strangely, I like to eat grass. | prep n punc adv punc pn v aux v n punc
+On Mondays, I only eat grass, strangely. | prep n punc pn adv v n punc adv punc
 I like rain and snow. | pn v n conj n punc
 I like to jump and shout! | pn v aux v conj v punc
-I like to listen to music and the sounds of nature. | pn v aux v aux n conj d n pre n punc
-On Sundays and Wednesdays, I like to eat warm tasty bread. | pre n conj n punc pn v aux v adj adj n punc
-When eating or drinking, my blood-pressure goes up. | pre v conj v punc d n v adv punc
+I like to listen to music and the sounds of nature. | pn v aux v aux n conj d n prep n punc
+On Sundays and Wednesdays, I like to eat warm tasty bread. | prep n conj n punc pn v aux v adj adj n punc
+When eating or drinking, my blood-pressure goes up. | prep v conj v punc d n v adv punc
 I hate eating cheese. | pn v v n punc
 I need helping. | pn v v punc
 I eat grass. | pn v n punc
@@ -26,8 +26,8 @@ I touch grass. | pn v n punc
 I feel. | pn v punc
 I feel real. | pn v adj punc
 I am real. | pn v adj punc
-Maths is after lunch. | n v pre n punc
-I taste like a human. | pn v pre d n punc
+Maths is after lunch. | n v prep n punc
+I taste like a human. | pn v prep d n punc
 I am a human. | pn v d n punc
 My mother is also a human. | d n v adv d n punc
 My friend's dad is an alien. | d n n v d n punc
@@ -35,14 +35,14 @@ This sentence works. | d n v punc
 This works sometimes. | pn v adv punc
 He sleeps. | pn v punc
 My mum doesn't really like bread. | d n aux adv v n punc
-At least half of these tests will succeed. | d d d pre d n aux v punc
+At least half of these tests will succeed. | d d d prep d n aux v punc
 Her cats hate each other. | d n v pn punc
 That car is his. | d n v pn punc
 That car belongs to him. | d n v aux pn punc
-He had too much to eat. | pn v adv d pre n punc
-He had had too much to eat. | pn aux v adv d pre n punc
-He too, had too much to eat. | pn adv punc v adv d pre n punc
-He too, had had too much to eat. | pn adv punc aux v adv d pre n punc
+He had too much to eat. | pn v adv d prep n punc
+He had had too much to eat. | pn aux v adv d prep n punc
+He too, had too much to eat. | pn adv punc v adv d prep n punc
+He too, had had too much to eat. | pn adv punc aux v adv d prep n punc
 I am John. | pn v n punc
 I am smart. | pn v adj punc
 I am walking. | pn aux v punc
@@ -54,7 +54,7 @@ I will have walked. | pn aux aux v punc
 That smiling guy is called Thomas. | d adj n aux v n punc
 He will have had food. | pn aux aux v n punc
 You would have had to have viewed it. | pn aux aux aux v aux v pn punc
-She lives up the road. | pn v pre d n punc
+She lives up the road. | pn v prep d n punc
 I am. | pn v punc
 She is. | pn v punc
 They are. | pn v punc
@@ -66,7 +66,7 @@ I should be going. | pn aux aux v punc
 I shouldn't do this. | pn aux v pn punc
 That is a cat. | pn v d n punc
 As I was saying ... | conj pn aux v punc
-Scotty accepted the decision with indifference and did not enter the arguments. | n v d n pre n conj aux adv v d n punc
+Scotty accepted the decision with indifference and did not enter the arguments. | n v d n prep n conj aux adv v d n punc
 They were angry. | pn v adj punc
 He was singing. | pn aux v punc
 She yelled because she was angry. | pn v conj pn v adj punc
@@ -74,7 +74,12 @@ You had a cat. | pn v d n punc
 She is a cat. | pn v d n punc
 I think that that is silly. | pn v conj pn v adj punc
 It wasn't him. | pn v pn punc
+I am just dying to find out my score on the last exam. | pn v adv v aux v prep d n prep d d n punc
+She will be where he is. | pn aux v pn pn v punc
 He said "Hello, how are you?". | pn v q punc
+It couldn't just happen. | pn aux adv v punc
+It just didn't happen. | pn adv aux v punc
+It wasn't to be. | pn v aux v punc
 Is this a question? | v pn d n punc
 Is Paul tired? | v n adj punc
 Is Paul a human? | v n d n punc
@@ -83,10 +88,11 @@ Will this work? | v pn v punc
 Will this work well? | v pn v adv punc
 Does this work? | v pn v punc
 How does this work? | v aux pn v punc
-Where did you come from? | pn aux pn v pre punc
+Where did you come from? | pn aux pn v prep punc
 Whose children are those? | d n v pn punc
 Those belong to who? | pn v aux pn punc
 Do you want to eat? | v pn v aux v punc
 Do you want vanilla or chocolate? | v pn v n conj n punc
 You got my message, didn't you? | pn v d n punc aux pn punc
 This is silly, isn't it? | pn v adj punc aux pn punc
+What name would you have and why is it a cool name for a person to have currently? | pn n aux pn v conj pn v pn d adj n prep d n aux v adv punc

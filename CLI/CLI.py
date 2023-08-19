@@ -23,7 +23,7 @@ class CLI:
         self.cmds[func.__name__] = getfullargspec(func).kwonlyargs + getfullargspec(func).args
 
         return func
-    
+
     def setup(self, lines: int) -> Callable:
         def wrapper(func: Callable) -> Callable:
             self.setupfuncs[func] = lines
@@ -31,25 +31,25 @@ class CLI:
             return func
 
         return wrapper
-    
+
     def __setup(self) -> int:
         for f in self.setupfuncs.keys():
             f()
-        
+
         return sum(self.setupfuncs.values())
 
     def __call__(self, flags: dict={}) -> None:
         """
         Register commands with `add_cmd`.
 
-        Execute commands by starting the line with '$',\nthen the name of the command and any arguments,\nseperated by spaces (keyword argument supplied\nlike so: `-name GoodCoderBBoy`).\n
+        Execute commands by starting the line with '$',\nthen the name of the command and any arguments,\nseperated by spaces (keyword argument supplied\nlike so: `-name Anithesise`).\n
         Use `tab` to complete autofill and the `up` and\n`down` arrow keys to navigate options. Execute\na paragraph by pressing `esc`\nPress `delete` to cancel the entire line
         """
 
         # flush stdin
         while kbhit():
             getch()
-        
+
         maxoptions = flags.get("maxoptions", 5)
         method: AutoCorrect | WagnerFischer = {
             "w-f": WF, "default": AC
@@ -112,7 +112,7 @@ class CLI:
                             while not kbhit():
                                 # blinking underscore
                                 print(end=("_" if round(time() * 2) % 2 else " ") + "\x1b[D")
-                            
+
                             print(" \x1b[D") # clear blinking underscore
 
                             ch: str = getch().decode("utf-8") # set ch to input
@@ -243,7 +243,7 @@ class CLI:
                     cmdkwargs: dict[str, str] = {}
 
                     if len([w for w in line if w.strip()]) > 2: # arguments?
-                        p = True # pass 
+                        p = True # pass
 
                         aa = [[], False] # argument accumalator for string parsing
 
